@@ -1,471 +1,690 @@
-<?php include("./inc/header.php"); ?>
-<?php
-include_once $_SERVER['DOCUMENT_ROOT'] . "/common/conf/config.inc.php";
-include_once $_SERVER['DOCUMENT_ROOT'] . "/module/board/board.lib.php";
-include_once $_SERVER['DOCUMENT_ROOT'] . "/module/banner/banner.lib.php";
+<!DOCTYPE html>
+<html lang="ko">
 
-$dblink = SetConn($_conf_db["main_db"]);
-$arrEduListAll = getBoardListBaseNFile("edu", "", "", "", 4, 0,'', "user"); // 전체 교육 리스트 가져오기
-$arrEduList1 = getBoardListBaseNFile("edu", "", "", "", 4, 0,'and reception_status="접수중"', "user"); // 접수중인 교육 리스트 가져오기
-$arrEduList2 = getBoardListBaseNFile("edu", "", "", "", 4, 0,'and reception_status="대기접수"', "user"); // 대기접수중인 교육 리스트 가져오기
-$arrEduList3 = getBoardListBaseNFile("edu", "", "", "", 4, 0,'and reception_status="교육중"', "user"); // 교육중인 교육 리스트 가져오기
-$arrEduList4 = getBoardListBaseNFile("edu", "", "", "", 4, 0,'and reception_status="종료"', "user"); // 종료된 교육 리스트 가져오기
-$arrEquList = getBoardListBaseNFile("equ", "", "", "", 3, 0,'', "user"); // 장비 대여 리스트 가져오기
-$arrPlaceList = getBoardListBaseNFile("place", "", "", "", 3, 0,'', "user"); // 공간 대관 리스트 가져오기
-$arrNoticeList = getBoardListBaseNFile("notice", "", "", "", 4, 0,'', "user"); // 공지사항 리스트 가져오기
-$arrYoutubeList = getBoardListBaseNFile("youtube", "", "", "", 2, 0,'', "user"); // 유튜브 리스트 가져오기
-$arrPCBannerList = getDeviceBannerList(1,"1"); // PC 배너 리스트 가져오기
-$arrMOBannerList = getDeviceBannerList(1,"2"); // 모바일 배너 리스트 가져오기
-$arrBottomPCBannerList = getDeviceBannerList(2,"3"); // 하단 PC 배너 리스트 가져오기
-$arrBoardHolidayList = getBoardListBaseNFile("holiday", $_GET["category"], $_GET['sw'], $_GET['sk'], $arrBoardInfo["list"][0]["scale"], $_GET['offset'], $_GET['reply']); // 휴관일 리스트 가져오기
-$holidayWeekdays = [];
-$specificHolidayDates = [];
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport"
+		content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=2.0,user-scalable=no">
+	<meta name="format-detection" content="telephone=no" />
+	<title>한국고분자학회</title>
+	<link href="/pub/css/style.css" rel="stylesheet" type="text/css">
+	<link href="/pub/css/main.css" rel="stylesheet" type="text/css">
+	<script src="/pub/js/jquery-3.7.0.min.js"></script>
+	<script src="/pub/js/jquery-migrate-3.4.0.min.js"></script>
+	<script src="/pub/js/pub-common.js"></script>
+	<script src="/pub/js/swiper-bundle.min.js"></script>
+</head>
 
-foreach ($arrBoardHolidayList['list'] as $holiday) {
-    // 요일 정보 처리
-    if (!empty($holiday['weekdays'])) {
-        $weekdays = explode('|', $holiday['weekdays']);
-        $holidayWeekdays = array_merge($holidayWeekdays, $weekdays);
-    }
+<body>
+	<?php include_once('pub/inc/_header.php'); ?>
+	<main>
+		<div class="visual-wrap">
+			<div class="swiper">
+				<div class="swiper-wrapper">
+					<div class="swiper-slide">
+						<div class="img show-pc">
+							<img src="/pub/images/main/visual_1.jpg" alt="">
+						</div>
+						<div class="img show-mo">
+							<img src="/pub/images/main/visual_1_m.jpg" alt="">
+						</div>
+						<div class="text-wrap inner">
+							<p class="sub">The polymer Society of Korea</p>
+							<p class="title">기초연구 및 <br>실제 응용 도모를 통한 학술 문화의 발전</p>
+						</div>
+					</div>
+					<div class="swiper-slide">
+						<div class="img show-pc">
+							<img src="/pub/images/main/visual_1.jpg" alt="">
+						</div>
+						<div class="img show-mo">~
+							<img src="/pub/images/main/visual`_1_m.jpg" alt="">
+						</div>
+						<div class="text-wrap inner">`
+							<p class="sub">The polymer Society of Korea</p>
+							<p class="title">기초연구 및 <br>실제 응용 도모를 통한 학술 문화의 발전</p>
+						</div>
+					</div>
+					<div class="swiper-slide">
+						<div class="img show-pc">
+							<img src="/pub/images/main/visual_1.jpg" alt="">
+						</div>
+						<div class="img show-mo">
+							<img src="/pub/images/main/visual_1_m.jpg" alt="">
+						</div>
+						<div class="text-wrap inner">
+							<p class="sub">The polymer Society of Korea</p>
+							<p class="title">기초연구 및 <br>실제 응용 도모를 통한 학술 문화의 발전</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="visual-control">
+				<div class="swiper-pagination"></div>
+				<div class="progress-wrap">
+					<div class="swiper-pause show"></div>
+					<div class="swiper-play"></div>
+					<div class="autoplay-progress">
+						<svg viewBox="0 0 56 56">
+							<circle cx="28" cy="28" r="27"></circle>
+						</svg>
+					</div>
+				</div>
+			</div>
+			<div class="scroll-down">
+				<span>SCROLL DOWN</span>
+			</div>
+		</div>
+		<div class="sponsor section sponsor1">
+			<div class="tit-wrap">
+				<p class="eng">Sponsor</p>
+				<p class="heading1">한국고분자학회 공식후원사</p>
+			</div>
+			<div class="inner">
+				<div class="swiper">
+					<div class="swiper-wrapper">
+						<div class="swiper-slide"><img src="/pub/images/main/sponsor_ci1.png" alt="LG화학"></div>
+						<div class="swiper-slide"><img src="https://www.polymer.or.kr/img/banner/b_ad_14.jpg" alt="롯데케미칼"></div>
+						<div class="swiper-slide"><img src="/pub/images/main/sponsor_ci1.png" alt="LG화학"></div>
+						<div class="swiper-slide"><img src="/pub/images/main/sponsor_ci2.png" alt="롯데케미칼"></div>
+						<div class="swiper-slide"><img src="/pub/images/main/sponsor_ci1.png" alt="LG화학"></div>
+						<div class="swiper-slide"><img src="/pub/images/main/sponsor_ci2.png" alt="롯데케미칼"></div>
+						<div class="swiper-slide"><img src="/pub/images/main/sponsor_ci1.png" alt="LG화학"></div>
+						<div class="swiper-slide"><img src="https://www.polymer.or.kr/img/banner/b_ad_14.jpg" alt="롯데케미칼"></div>
+						<div class="swiper-slide"><img src="/pub/images/main/sponsor_ci1.png" alt="LG화학"></div>
+						<div class="swiper-slide"><img src="/pub/images/main/sponsor_ci2.png" alt="롯데케미칼"></div>
+						<div class="swiper-slide"><img src="/pub/images/main/sponsor_ci1.png" alt="LG화학"></div>
+						<div class="swiper-slide"><img src="/pub/images/main/sponsor_ci2.png" alt="롯데케미칼"></div>
+					</div>
+				</div>
+				<div class="swiper-button-next"></div>
+				<div class="swiper-button-prev"></div>
+			</div>
+		</div>
+		<div class="sponsor section sponsor2 pt-3 mt-4">
+			<div class="tit-wrap">
+				<p class="eng">Banners AD</p>
+				<p class="heading1">배너광고사</p>
+				<p class="sub">고분자학회는 배너광고사를 모집합니다.</p>
+			</div>
+			<div class="inner">
+				<div class="swiper">
+					<div class="swiper-wrapper">
+						<div class="swiper-slide"><img src="/pub/images/main/sponsor_ci1.png" alt="LG화학"></div>
+						<div class="swiper-slide"><img src="https://www.polymer.or.kr/img/banner/b_ad_14.jpg" alt="롯데케미칼"></div>
+						<div class="swiper-slide"><img src="/pub/images/main/sponsor_ci1.png" alt="LG화학"></div>
+						<div class="swiper-slide"><img src="/pub/images/main/sponsor_ci2.png" alt="롯데케미칼"></div>
+						<div class="swiper-slide"><img src="/pub/images/main/sponsor_ci1.png" alt="LG화학"></div>
+						<div class="swiper-slide"><img src="/pub/images/main/sponsor_ci2.png" alt="롯데케미칼"></div>
+					</div>
+				</div>
+				<div class="swiper-button-next"></div>
+				<div class="swiper-button-prev"></div>
+			</div>
+		</div>
+		<div class="gradient">
+			<div class="inner">
+				<!-- s: 자주 찾는 메뉴-->
+				<div class="section">
+					<div class="tit-wrap">
+						<p class="eng">QUICK Service</p>
+						<p class="heading1">자주 찾는 메뉴</p>
+					</div>
+					<div class="quick-flex">
+						<div class="quick-wrap">
+							<a href="/act/act_11.php" class="ico1">
+								<span>학회상</span>
+							</a>
+							<a href="/function/function_1.php" class="ico2">
+								<span>학회일정</span>
+							</a>
+							<a href="/mypage/mypage_3.php" class="ico3">
+								<span>회비결제</span>
+							</a>
+							<a href="/mypage/mypage_5.php" class="ico4">
+								<span>증빙서류</span>
+							</a>
+							<a href="/news/news_11.php" class="ico5">
+								<span>Q&A</span>
+							</a>
+							<a href="https://www.polymer.or.kr/e-book/ecatalog5.php?Dir=85&catimage=3&callmode=admin " class="ico6" target="_blank">
+								<span>뉴스레터</span>
+							</a>
+							<a href="/vote/vote_1.php" class="ico7">
+								<span>수석부회장 선거</span>
+							</a>
+							<a href="/vote/vote_2.php" class="ico8">
+								<span>평의원선거</span>
+							</a>
+						</div>
+						<!-- <a href="#;" class="ico-box">
+							<p class="tit">뉴스레터</p>
+							<p class="sub">NEWSLETTER</p>
+						</a> -->
+					</div>
+				</div>
+				<!-- e: 자주 찾는 메뉴-->
+				<!-- s: 최신 간행물 -->
+				<div class="section magazine">
+					<div class="tit-wrap">
+						<p class="eng">Magazine</p>
+						<p class="heading1">최신 간행물</p>
+					</div>
+					<div class="swiper">
+						<div class="swiper-wrapper">
+							<div class="swiper-slide">
+								<div class="thumb">
+									<div class="img"><img src="/pub/images/main/img_mag1.jpg" alt=""></div>
+									<div class="text">
+										<p class="tit">Macromolecular Research</p>
+										<p class="info">
+											<span>Vol.32</span><span>No.8</span>
+										</p>
+									</div>
+									<a href="/publish/publish_1.php" class="more"><span class="blind">더보기</span></a>
+								</div>
+								<div class="btm-btn">
+									<a href="https://link.springer.com/journal/13233" class="online" target="_blank">Online Submission</a>
+									<a href="https://www.polymer.or.kr/mr/" class="search" target="_blank">Journal Site</a>
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="thumb">
+									<div class="img"><img src="/pub/images/main/img_mag2.jpg" alt=""></div>
+									<div class="text">
+										<p class="tit">폴리머 Polymer (Korea)</p>
+										<p class="info">
+											<span>Vol.32</span><span>No.8</span>
+										</p>
+									</div>
+									<a href="/publish/publish_2.php" class="more"><span class="blind">더보기</span></a>
+								</div>
+								<div class="btm-btn">
+									<a href="https://domestic.thinkonweb.com/society/polymer" class="online" target="_blank">Online Submission</a>
+									<a href="https://journal.polymer-korea.or.kr/journal/journal/aboutthisjournal" class="search" target="_blank">Journal Site</a>
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="thumb">
+									<div class="img"><img src="/pub/images/main/img_mag3.jpg" alt=""></div>
+									<div class="text">
+										<p class="tit">고분자과학과기술</p>
+										<p class="info">
+											<span>Vol.32</span><span>No.8</span>
+										</p>
+									</div>
+									<a href="/publish/publish_31.php" class="more"><span class="blind">더보기</span></a>
+								</div>
+								<div class="btm-btn">
+									<a href="/publish/publish_32.php" class="online">E-Book (2012 ~ 현재)</a>
+									<a href="/publish/publish_33.php" class="search">PDF (1990 ~ 현재)</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- e: 최신 간행물 -->
+			</div>
+		</div>
+		<!-- s: 공지ㆍ안내 -->
+		<div class="news section">
+			<div class="inner">
+				<div class="tit-wrap">
+					<p class="eng">news</p>
+					<p class="heading1">공지ㆍ안내</p>
+				</div>
+				<div class="tabs">
+					<button type="button" class="active">공지사항</button>
+					<button type="button">학회소식</button>
+					<button type="button">지부/부문위 소식</button>
+					<button type="button">회원동정</button>
+					<button type="button">학술행사</button>
+					<button type="button">정보마당</button>
+					<button type="button">구인구직</button>
+				</div>
+				<div class="tab-container">
+					<div class="tab-content">
+						<div class="news-wrap">
+							<a href="/news/news_1.php" class="box">
+								<!-- dev : 새로운글 new-badge class -->
+								<p class="tit new-badge">2024년도 추계 정기총회 및 학술대회 각종 일정표</p>
+								<span class="date">2024.08.22</span>
+							</a>
+							<a href="/news/news_1.php" class="box">
+								<p class="tit">한국고분자학회 제1기 학생운영위원 모집공고</p>
+								<span class="date">2024.08.22</span>
+							</a>
+							<a href="/news/news_1.php" class="box">
+								<p class="tit">2024년도 추계학술대회 우수논문 발표상 및 장려상 안내</p>
+								<span class="date">2024.08.20</span>
+							</a>
+							<a href="/news/news_1.php" class="box">
+								<p class="tit">2024년도 추계 정기총회 및 학술대회 포스터 보드 사이즈 안내</p>
+								<span class="date">2024.07.22</span>
+							</a>
+							<a href="/news/news_1.php" class="box">
+								<p class="tit">2024년도 추계 학회상 후보자 공모 안내</p>
+								<span class="date">2024.08.21</span>
+							</a>
+							<a href="/news/news_1.php" class="box">
+								<p class="tit">2024년도 추계 정기총회 및 학술대회 초록제출 안내</p>
+								<span class="date">2024.06.22</span>
+							</a>
+						</div>
+						<a href="/news/news_1.php" class="more">더보기</a>
+					</div>
+					<div class="tab-content">
+						<div class="news-wrap">
+							<a href="/news/news_2.php" class="box">
+								<p class="tit">학회소식</p>
+								<span class="date">2024.06.22</span>
+							</a>
+							<a href="/news/news_2.php" class="box">
+								<!-- dev : 새로운글 new-badge class -->
+								<p class="tit new-badge">2024년도 추계 정기총회 및 학술대회 각종 일정표</p>
+								<span class="date">2024.08.22</span>
+							</a>
+							<a href="/news/news_2.php" class="box">
+								<p class="tit">한국고분자학회 제1기 학생운영위원 모집공고</p>
+								<span class="date">2024.08.22</span>
+							</a>
+							<a href="/news/news_2.php" class="box">
+								<p class="tit">2024년도 추계학술대회 우수논문 발표상 및 장려상 안내</p>
+								<span class="date">2024.08.20</span>
+							</a>
+							<a href="/news/news_2.php" class="box">
+								<p class="tit">2024년도 추계 정기총회 및 학술대회 포스터 보드 사이즈 안내</p>
+								<span class="date">2024.07.22</span>
+							</a>
+							<a href="/news/news_2.php" class="box">
+								<p class="tit">2024년도 추계 학회상 후보자 공모 안내</p>
+								<span class="date">2024.08.21</span>
+							</a>
+						</div>
+						<a href="/news/news_2.php" class="more">더보기</a>
+					</div>
+					<div class="tab-content">
+						<div class="news-wrap">
+							<a href="/news/news_3.php" class="box">
+								<p class="tit">지부 소식</p>
+								<span class="date">2024.06.22</span>
+							</a>
+							<a href="/news/news_3.php" class="box">
+								<!-- dev : 새로운글 new-badge class -->
+								<p class="tit new-badge">2024년도 추계 정기총회 및 학술대회 각종 일정표</p>
+								<span class="date">2024.08.22</span>
+							</a>
+							<a href="/news/news_3.php" class="box">
+								<p class="tit">한국고분자학회 제1기 학생운영위원 모집공고</p>
+								<span class="date">2024.08.22</span>
+							</a>
+							<a href="/news/news_3.php" class="box">
+								<p class="tit">2024년도 추계학술대회 우수논문 발표상 및 장려상 안내</p>
+								<span class="date">2024.08.20</span>
+							</a>
+							<a href="/news/news_3.php" class="box">
+								<p class="tit">2024년도 추계 정기총회 및 학술대회 포스터 보드 사이즈 안내</p>
+								<span class="date">2024.07.22</span>
+							</a>
+							<a href="/news/news_3.php" class="box">
+								<p class="tit">2024년도 추계 학회상 후보자 공모 안내</p>
+								<span class="date">2024.08.21</span>
+							</a>
+						</div>
+						<a href="/news/news_3.php" class="more">더보기</a>
+					</div>
+					<div class="tab-content">
+						<div class="news-wrap">
+							<a href="/news/news_4.php" class="box">
+								<p class="tit">회원동정</p>
+								<span class="date">2024.06.22</span>
+							</a>
+							<a href="/news/news_4.php" class="box">
+								<!-- dev : 새로운글 new-badge class -->
+								<p class="tit new-badge">2024년도 추계 정기총회 및 학술대회 각종 일정표</p>
+								<span class="date">2024.08.22</span>
+							</a>
+							<a href="/news/news_4.php" class="box">
+								<p class="tit">한국고분자학회 제1기 학생운영위원 모집공고</p>
+								<span class="date">2024.08.22</span>
+							</a>
+							<a href="/news/news_4.php" class="box">
+								<p class="tit">2024년도 추계학술대회 우수논문 발표상 및 장려상 안내</p>
+								<span class="date">2024.08.20</span>
+							</a>
+							<a href="/news/news_4.php" class="box">
+								<p class="tit">2024년도 추계 정기총회 및 학술대회 포스터 보드 사이즈 안내</p>
+								<span class="date">2024.07.22</span>
+							</a>
+							<a href="/news/news_4.php" class="box">
+								<p class="tit">2024년도 추계 학회상 후보자 공모 안내</p>
+								<span class="date">2024.08.21</span>
+							</a>
+						</div>
+						<a href="/news/news_4.php" class="more">더보기</a>
+					</div>
+					<div class="tab-content">
+						<div class="news-wrap">
+							<a href="/news/news_5.php" class="box">
+								<p class="tit">학술행사</p>
+								<span class="date">2024.06.22</span>
+							</a>
+							<a href="/news/news_5.php" class="box">
+								<!-- dev : 새로운글 new-badge class -->
+								<p class="tit new-badge">2024년도 추계 정기총회 및 학술대회 각종 일정표</p>
+								<span class="date">2024.08.22</span>
+							</a>
+							<a href="/news/news_5.php" class="box">
+								<p class="tit">한국고분자학회 제1기 학생운영위원 모집공고</p>
+								<span class="date">2024.08.22</span>
+							</a>
+							<a href="/news/news_5.php" class="box">
+								<p class="tit">2024년도 추계학술대회 우수논문 발표상 및 장려상 안내</p>
+								<span class="date">2024.08.20</span>
+							</a>
+							<a href="/news/news_5.php" class="box">
+								<p class="tit">2024년도 추계 정기총회 및 학술대회 포스터 보드 사이즈 안내</p>
+								<span class="date">2024.07.22</span>
+							</a>
+							<a href="/news/news_5.php" class="box">
+								<p class="tit">2024년도 추계 학회상 후보자 공모 안내</p>
+								<span class="date">2024.08.21</span>
+							</a>
+						</div>
+						<a href="/news/news_5.php" class="more">더보기</a>
+					</div>
+					<div class="tab-content">
+						<div class="news-wrap">
+							<a href="/news/news_6.php" class="box">
+								<p class="tit">정보마당</p>
+								<span class="date">2024.06.22</span>
+							</a>
+							<a href="/news/news_6.php" class="box">
+								<!-- dev : 새로운글 new-badge class -->
+								<p class="tit new-badge">2024년도 추계 정기총회 및 학술대회 각종 일정표</p>
+								<span class="date">2024.08.22</span>
+							</a>
+							<a href="/news/news_6.php" class="box">
+								<p class="tit">한국고분자학회 제1기 학생운영위원 모집공고</p>
+								<span class="date">2024.08.22</span>
+							</a>
+							<a href="/news/news_6.php" class="box">
+								<p class="tit">2024년도 추계학술대회 우수논문 발표상 및 장려상 안내</p>
+								<span class="date">2024.08.20</span>
+							</a>
+							<a href="/news/news_6.php" class="box">
+								<p class="tit">2024년도 추계 정기총회 및 학술대회 포스터 보드 사이즈 안내</p>
+								<span class="date">2024.07.22</span>
+							</a>
+							<a href="/news/news_6.php" class="box">
+								<p class="tit">2024년도 추계 학회상 후보자 공모 안내</p>
+								<span class="date">2024.08.21</span>
+							</a>
+						</div>
+						<a href="/news/news_6.php" class="more">더보기</a>
+					</div>
+					<div class="tab-content">
+						<div class="news-wrap">
+							<a href="/news/news_7.php" class="box">
+								<p class="tit">구인구직</p>
+								<span class="date">2024.06.22</span>
+							</a>
+							<a href="/news/news_7.php" class="box">
+								<!-- dev : 새로운글 new-badge class -->
+								<p class="tit new-badge">2024년도 추계 정기총회 및 학술대회 각종 일정표</p>
+								<span class="date">2024.08.22</span>
+							</a>
+							<a href="/news/news_7.php" class="box">
+								<p class="tit">한국고분자학회 제1기 학생운영위원 모집공고</p>
+								<span class="date">2024.08.22</span>
+							</a>
+							<a href="/news/news_7.php" class="box">
+								<p class="tit">2024년도 추계학술대회 우수논문 발표상 및 장려상 안내</p>
+								<span class="date">2024.08.20</span>
+							</a>
+							<a href="/news/news_7.php" class="box">
+								<p class="tit">2024년도 추계 정기총회 및 학술대회 포스터 보드 사이즈 안내</p>
+								<span class="date">2024.07.22</span>
+							</a>
+							<a href="/news/news_7.php" class="box">
+								<p class="tit">2024년도 추계 학회상 후보자 공모 안내</p>
+								<span class="date">2024.08.21</span>
+							</a>
+						</div>
+						<a href="/news/news_7.php" class="more">더보기</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- e: 공지ㆍ안내 -->
+		<div class="box-wrap section inner">
+			<a href="/news/news_8.php" class="ico-box ad">
+				<p class="tit">광고안내</p>
+				<p class="sub">고분자학회와 함께 해주세요.</p>
+			</a>
+			<a href="/publish/publish_5.php" class="ico-box video">
+				<p class="tit">동영상 강의</p>
+				<p class="sub">고분자학회가 제공하는<br>다양한 강의를 확인해보세요.</p>
+			</a>
+			<a href="/publish/publish_41.php" class="ico-box mag">
+				<p class="tit">창립특집호</p>
+				<p class="sub">THE POLYMER SOCIETY OF KOREA</p>
+			</a>
+			<a href="/news/news_9.php" class="ico-box gall">
+				<p class="tit">갤러리</p>
+				<p class="sub">GALLERY</p>
+			</a>
+		</div>
+		<div class="ad-wrap">
+			<div class="tit-wrap inner">
+				<!-- <p class="eng">A TECHNICAL MAGAZINE</p> -->
+				<p class="heading1">기술지 광고사</p>
+			</div>
+			<div class="slider">
+				<div class="inner">
+					<div class="swiper">
+						<div class="swiper-wrapper">
+							<div class="swiper-slide"><img src="/pub/images/main/logo_ad1.jpg" alt="부경대학교"></div>
+							<div class="swiper-slide"><img src="/pub/images/main/logo_ad2.jpg" alt="국세청"></div>
+							<div class="swiper-slide"><img src="/pub/images/main/logo_ad3.jpg" alt="인하대학교"></div>
+							<div class="swiper-slide"><img src="/pub/images/main/logo_ad2.jpg" alt="국세청"></div>
+							<div class="swiper-slide"><img src="/pub/images/main/logo_ad3.jpg" alt="인하대학교"></div>
+							<div class="swiper-slide"><img src="/pub/images/main/logo_ad1.jpg" alt="부경대학교"></div>
+							<div class="swiper-slide"><img src="/pub/images/main/logo_ad2.jpg" alt="국세청"></div>
+							<div class="swiper-slide"><img src="/pub/images/main/logo_ad1.jpg" alt="부경대학교"></div>
+							<div class="swiper-slide"><img src="/pub/images/main/logo_ad2.jpg" alt="국세청"></div>
+							<div class="swiper-slide"><img src="/pub/images/main/logo_ad3.jpg" alt="인하대학교"></div>
+							<div class="swiper-slide"><img src="/pub/images/main/logo_ad2.jpg" alt="국세청"></div>
+							<div class="swiper-slide"><img src="/pub/images/main/logo_ad3.jpg" alt="인하대학교"></div>
+							<div class="swiper-slide"><img src="/pub/images/main/logo_ad1.jpg" alt="부경대학교"></div>
+							<div class="swiper-slide"><img src="/pub/images/main/logo_ad2.jpg" alt="국세청"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+	<?php include_once('pub/inc/_footer.php'); ?>
+	<script>
+		// visual
+		const progressCircle = document.querySelector(".visual-wrap .autoplay-progress svg");
+		const swiper1 = new Swiper('.visual-wrap .swiper', {
+			loop: true,
+			autoplay: {
+				delay: 4000,
+				disableOnInteraction: false
+			},
+			pagination: {
+				el: ".visual-wrap .swiper-pagination",
+				clickable: true
+			},
+			on: {
+				autoplayTimeLeft(s, time, progress) {
+					progressCircle.style.setProperty("--progress", 1 - progress);
+				}
+			}
+		});
 
-    // 특정 날짜 범위 처리
-    if (!empty($holiday['holly_start_date']) && !empty($holiday['holly_end_date'])) {
-        $startDate = strtotime($holiday['holly_start_date']);
-        $endDate = strtotime($holiday['holly_end_date']);
+		const pauseButton = document.querySelector('.visual-wrap .swiper-pause');
+		const playButton = document.querySelector('.visual-wrap .swiper-play');
+		pauseButton.addEventListener('click', function() {
+			pauseButton.style.display = 'none';
+			playButton.style.display = 'block';
+			swiper1.autoplay.stop();
+		});
+		playButton.addEventListener('click', function() {
+			playButton.style.display = 'none';
+			pauseButton.style.display = 'block';
+			swiper1.autoplay.start();
+		});
 
-        for ($date = $startDate; $date <= $endDate; $date = strtotime('+1 day', $date)) {
-            $specificHolidayDates[] = date('Y-m-d', $date);
-        }
-    }
-}
+		// sponsor
+		const swiper2_1 = new Swiper('.sponsor1 .swiper', {
+			autoplay: {
+				delay: 4000,
+				disableOnInteraction: false
+			},
+			loop: true,
+			spaceBetween: 7,
+			slidesPerView: 2,
+			grid: {
+				rows: 2,
+			},
+			navigation: {
+				nextEl: ".sponsor1 .swiper-button-next",
+				prevEl: ".sponsor1 .swiper-button-prev"
+			},
+			breakpoints: {
+				769: {
+					spaceBetween: 10,
+					slidesPerView: 3,
+					grid: {
+						rows: 2,
+					},
+				},
+				1025: {
+					spaceBetween: 20,
+					slidesPerView: 3,
+					grid: {
+						rows: 2,
+					},
+				}
+			}
+		});
+		const swiper2_2 = new Swiper('.sponsor2 .swiper', {
+			autoplay: {
+				delay: 4000,
+				disableOnInteraction: false
+			},
+			loop: true,
+			spaceBetween: 7,
+			slidesPerView: 3,
+			navigation: {
+				nextEl: ".sponsor2 .swiper-button-next",
+				prevEl: ".sponsor2 .swiper-button-prev"
+			},
+			breakpoints: {
+				769: {
+					spaceBetween: 10,
+					slidesPerView: 4,
+				},
+				1025: {
+					spaceBetween: 20,
+					slidesPerView: 5,
+				}
+			}
+		});
 
-// 중복 제거
-$holidayWeekdays = array_unique($holidayWeekdays);
-$specificHolidayDates = array_unique($specificHolidayDates);
+		// magazine
+		const swiper3 = new Swiper('.magazine .swiper', {
+			loop: false,
+			spaceBetween: 10,
+			slidesPerView: 1.65,
+			slidesOffsetBefore: 20,
+			slidesOffsetAfter: 20,
+			breakpoints: {
+				769: {
+					spaceBetween: 10,
+					slidesPerView: 2.7,
+					slidesOffsetBefore: 0,
+					slidesOffsetAfter: 0,
+				},
+				1025: {
+					spaceBetween: 24,
+					slidesPerView: 3,
+					slidesOffsetBefore: 0,
+					slidesOffsetAfter: 0,
+				}
+			}
+		});
 
-// JavaScript 배열로 변환
-$holidayWeekdaysJson = json_encode($holidayWeekdays);
-$specificHolidayDatesJson = json_encode($specificHolidayDates);
+		// ad-wrap
+		const swiperContainer = document.querySelector('.ad-wrap .swiper');
+		const slides = swiperContainer.querySelectorAll('.swiper-slide');
+		const slideCount = slides.length;
 
-//DB해제
-SetDisConn($dblink);
-?>
-<script>
-    const holidayWeekdaysJson = <?= json_encode($holidayWeekdays) ?>;
-    const specificHolidayDatesJson = <?= json_encode($specificHolidayDates) ?>;
-</script>
-<script src="/js/calendar.js"></script>
-<!-- Container -->
-<div class="container" id="container">
-    <!-- mainSec -->
-    <div class="mainSec inner">
-        <!-- mainSlide -->
-        <div class="mainSlide ">
-            <div class="swiper-wrapper">
-                <?php
-                if (!empty($arrPCBannerList["list"]) || !empty($arrMOBannerList["list"])) {
-                    $total = max($arrPCBannerList["list"]["total"], $arrMOBannerList["list"]["total"]);
-                    for ($i = 0; $i < $total; $i++) {
-                        $pc_image = "/pub/images/mvisual01.png";
-                        $mo_image = "/pub/images/mvisual01.png";
-                        $target = "";
-	                    $link_attr = '';
+		const getGridRows = () => (slideCount > 6 ? 2 : 1);
 
-                        if (!empty($arrPCBannerList["list"][$i]["b_image"])) {
-                            $pc_image = "/uploaded/banner/" . $arrPCBannerList["list"][$i]["b_image"];
-                        }
-                        if (!empty($arrMOBannerList["list"][$i]["b_image"])) {
-                            $mo_image = "/uploaded/banner/" . $arrMOBannerList["list"][$i]["b_image"];
-                        }
+		const swiper4 = new Swiper('.ad-wrap .swiper', {
+			loop: true,
+			spaceBetween: 20,
+			slidesPerView: 2.5,
+			slidesOffsetBefore: 20,
+			slidesOffsetAfter: 20,
+			autoplay: {
+				delay: 5000,
+			},
+			grid: {
+				fill: 'row',
+				rows: getGridRows(),
+			},
+			breakpoints: {
+				769: {
+					spaceBetween: 20,
+					slidesPerView: 4,
+					slidesOffsetBefore: 0,
+					slidesOffsetAfter: 0,
+					grid: {
+						fill: 'row',
+						rows: getGridRows(),
+					},
+				},
+				1025: {
+					spaceBetween: 24,
+					slidesPerView: 6,
+					slidesOffsetBefore: 0,
+					slidesOffsetAfter: 0,
+					grid: {
+						fill: 'row',
+						rows: getGridRows(),
+					},
+				}
+			},
+			on: {
+				init: function () {
+					this.params.grid.rows = getGridRows();
+					this.update();
+				},
+				resize: function () {
+					this.params.grid.rows = getGridRows();
+					this.update();
+				}
+			}
+		});
 
-	                    if (!empty($arrPCBannerList["list"][$i]["b_url"]) && $arrPCBannerList["list"][$i]["b_url"] != "https://") {
-		                    $link_attr = 'href="'.$arrPCBannerList["list"][$i]["b_url"].'" target="'.$arrPCBannerList["list"][$i]["b_target"].'"';
-	                    } elseif (!empty($arrMOBannerList["list"][$i]["b_url"]) && $arrMOBannerList["list"][$i]["b_url"] != "https://") {
-		                    $link_attr = 'href="'.$arrMOBannerList["list"][$i]["b_url"].'" target="'.$arrMOBannerList["list"][$i]["b_target"].'"';
-	                    }
-                        ?>
-                        <div class="swiper-slide">
-                            <a <?=$link_attr?>>
-                                <img src="<?=$pc_image?>" class="pc" alt="슬라이드">
-                                <img src="<?=$mo_image?>" class="mob" alt="슬라이드">
-                            </a>
-                        </div>
-                        <?php
-                    }
-                } else {
-                    ?>
-                    <div class="swiper-slide">
-                        <img src="/images/mainSlide1.png" class="pc" alt="슬라이드">
-                        <img src="/images/mainSlide1_mob.jpg" class="mob" alt="슬라이드">
-                    </div>
-                    <?php
-                }
-                ?>
-            </div>
-            <div class="controler">
-                <div class="count"><span class="state">01</span> <span class="bar">/</span> <span class="total"></span>
-                </div>
-                <div class="swiperNav">
-                    <div class="nav prev"></div>
-                    <div class="nav next"></div>
-                </div>
-            </div>
-        </div> <!-- //mainSlide -->
-        <!-- mainIcon -->
-        <div class="mainIcon">
-            <ul>
-                <li><a href="/edu/list.php"> <span class="img"><img src="/images/ico_main01.svg" alt="교육신청"></span> <span class="tit">교육신청</span> </a></li>
-                <li><a href="/equ/list.php"> <span class="img"><img src="/images/ico_main02.svg" alt="장비대여"></span> <span class="tit">장비대여</span> </a></li>
-                <li><a href="/place/list.php"> <span class="img"><img src="/images/ico_main03.svg" alt="공간대관"></span> <span class="tit">공간대관</span> </a></li>
-                <li><a href="/media/order.php"> <span class="img"><img src="/images/ico_main04.svg" alt="체험신청"></span> <span class="tit">체험신청</span> </a></li>
-                <li><a href="/mypage/orderList.php"> <span class="img"><img src="/images/ico_main05.svg" alt="신청확인"></span> <span class="tit">신청확인</span> </a></li>
-            </ul>
-        </div> <!-- //mainIcon -->
-        <!-- mainMedia -->
-        <div class="mainMedia">
-            <div class="mainTit">
-                <div class="tit">미디어 교육</div>
-                <div class="tabList">
-                    <a href="javascript:void(0)" class="active" data-name="all">전체</a>
-                    <a href="javascript:void(0)" data-name="ing">접수중</a>
-                    <a href="javascript:void(0)" data-name="etc">대기접수</a>
-                    <a href="javascript:void(0)" data-name="ready">교육중</a>
-                    <a href="javascript:void(0)" data-name="end">종료</a>
-                </div>
-                <a href="/edu/list.php" class="btnMore">More</a>
-            </div>
-            <div class="tabCont">
-                <div id="cont" class="all">
-                    <ul class="swiper-wrapper">
-	                    <?php
-	                    for ($i = 0; $i < $arrEduListAll["list"]["total"]; $i++) {
-		                    $status = $arrEduListAll["list"][$i]["reception_status"];
-		                    $class = "";
-		                    $text = "";
 
-		                    switch ($status) {
-			                    case "접수중":
-				                    $class = "ing";
-				                    $text = "접수중";
-				                    break;
-			                    case "대기접수":
-				                    $class = "etc";
-				                    $text = "대기접수";
-				                    break;
-			                    case "교육중":
-				                    $class = "ready";
-				                    $text = "교육중";
-				                    break;
-			                    case "종료":
-				                    $class = "end";
-				                    $text = "종료";
-				                    break;
-			                    default:
-				                    $class = "unknown";
-				                    $text = "알수없음";
-				                    break;
-		                    }
-		                    ?>
-                            <li class="all">
-                                <a href="/edu/list.php?boardid=edu&mode=view&idx=<?=$arrEduListAll["list"][$i]["idx"]?>">
-                                    <span class="img"><img src="/uploaded/board/edu/<?=$arrEduListAll["list"][$i]["re_name"]?>" alt="썸네일"></span>
-                                    <div class="stateBox <?=$class?>"><span><?=$text?></span></div>
-                                </a>
-                            </li>
-	                    <?php } ?>
-                        <?php for($i=0;$i<$arrEduList1["list"]["total"];$i++){?>
-                            <li class="ing">
-                                <a href="/edu/list.php?boardid=edu&mode=view&idx=<?=$arrEduList1["list"][$i]["idx"]?>">
-                                    <span class="img"><img src="/uploaded/board/edu/<?=$arrEduList1["list"][$i]["re_name"]?>" alt="썸네일"></span>
-                                    <div class="stateBox ing"><span>접수중</span></div>
-                                </a>
-                            </li>
-                        <?php } ?>
-                        <?php for($i=0;$i<$arrEduList2["list"]["total"];$i++){?>
-                            <li class="etc">
-                                <a href="/edu/list.php?boardid=edu&mode=view&idx=<?=$arrEduList2["list"][$i]["idx"]?>">
-                                    <span class="img"><img src="/uploaded/board/edu/<?=$arrEduList2["list"][$i]["re_name"]?>" alt="썸네일"></span>
-                                    <div class="stateBox etc"><span><span>대기<br />접수</span</span></div>
-                                </a>
-                            </li>
-                        <?php } ?>
-                        <?php for($i=0;$i<$arrEduList3["list"]["total"];$i++){?>
-                            <li class="ready">
-                                <a href="/edu/list.php?boardid=edu&mode=view&idx=<?=$arrEduList3["list"][$i]["idx"]?>">
-                                    <span class="img"><img src="/uploaded/board/edu/<?=$arrEduList3["list"][$i]["re_name"]?>" alt="썸네일"></span>
-                                    <div class="stateBox ready"><span><span>교육중</span></span></div>
-                                </a>
-                            </li>
-                        <?php } ?>
-                        <?php for($i=0;$i<$arrEduList4["list"]["total"];$i++){?>
-                            <li class="end">
-                                <a href="/edu/list.php?boardid=edu&mode=view&idx=<?=$arrEduList4["list"][$i]["idx"]?>">
-                                    <span class="img"><img src="/uploaded/board/edu/<?=$arrEduList4["list"][$i]["re_name"]?>" alt="썸네일"></span>
-                                    <div class="stateBox end"><span>종료</span></div>
-                                </a>
-                            </li>
-                        <?php } ?>
-                    </ul>
-                </div>
-            </div>
-        </div> <!-- //mainMedia -->
-        <!-- mainSide -->
-        <div class="mainSide">
-            <!-- mainEq -->
-            <div class="mainEq">
-                <div class="mainTit">
-                    <div class="tit">장비·공간대여</div>
-                    <div class="tabList">
-                        <a href="javascript:void(0)" class="active" data-name="eq">장비대여</a>
-                        <a href="javascript:void(0)" data-name="place">공간대관</a>
-                    </div>
-                        <a href="/place/list.php" class="btnMore place">More</a>
-                        <a href="/equ/list.php" class="btnMore eq">More</a>
-                </div>
-                <div class="tabCont">
-                    <div id="contEq" class="eq">
-                        <ul class="swiper-wrapper">
-                            <?php for($i=0;$i<$arrEquList["list"]["total"];$i++){ ?>
-                                <li class="eq">
-                                    <a href="/equ/list.php?boardid=edu&mode=view&idx=<?=$arrEquList["list"][$i]["idx"]?>">
-                                        <div class="img">
-                                            <img src="/uploaded/board/equ/<?=$arrEquList["list"][$i]["re_name"]?>" alt="썸네일">
-                                            <div class="pop">
-                                                <div class="popTit">대여하기</div>
-                                            </div>
-                                        </div>
-                                        <div class="box">
-                                            <span class="tit"><?=$arrEquList["list"][$i]["subject"]?></span>
-                                            <span class="txt"><?=number_format($arrEquList["list"][$i]["fee"])?>원(1일)</span>
-                                        </div>
-                                    </a>
-                                </li>
-                            <?php } ?>
-                        </ul>
-                    </div>
-                    <div id="contEq" class="place">
-                        <ul class="swiper-wrapper">
-                            <?php for($i=0;$i<$arrPlaceList["list"]["total"];$i++){ ?>
-                                <li class="place">
-                                    <a href="/place/list.php?boardid=place&mode=view&idx=<?=$arrPlaceList["list"][$i]["idx"]?>">
-                                        <div class="img">
-                                            <img src="/uploaded/board/place/<?=$arrPlaceList["list"][$i]["re_name"]?>" alt="썸네일">
-                                            <div class="pop">
-                                                <div class="popTit">대여하기</div>
-                                            </div>
-                                        </div>
-                                        <div class="box">
-                                            <span class="tit"><?=$arrPlaceList["list"][$i]["subject"]?></span>
-                                            <span class="txt"><?=number_format($arrPlaceList["list"][$i]["fee"])?>원(1시간)</span>
-                                        </div>
-                                    </a>
-                                </li>
-                            <?php } ?>
-                        </ul>
-                    </div>
-                </div>
-            </div> <!-- //mainEq -->
-            <!-- mainCal -->
-            <div class="mainCal">
-                <div class="mainTit">
-                    <div class="tit">운영안내</div>
-                </div>
-                <div class="calendar">
-                    <div class="top">
-                        <div class="year">
-                            <button><img src="/images/ico_calPrev.svg" alt="이전"></button>
-                            <span class="date">2024.09</span>
-                            <button><img src="/images/ico_calNext.svg" alt="다음"></button>
-                        </div>
-                        <div class="dayInfo"><span class="today">오늘</span> <span class="holiday">휴관일</span></div>
-                    </div>
-                    <table class="tableCal">
-                        <thead>
-							<tr>
-								<th>일</th>
-								<th>월</th>
-								<th>화</th>
-								<th>수</th>
-								<th>목</th>
-								<th>금</th>
-								<th>토</th>
-							</tr>
-                        </thead>
-                        <tbody>
-							<tr>
-								<td class="holiday"><span>1</span></td>
-								<td class="holiday"><span>2</span></td>
-								<td><span>3</span></td>
-								<td><span>4</span></td>
-								<td class="today"><span>5</span></td>
-								<td><span>6</span></td>
-								<td><span>7</span></td>
-							</tr>
-							<tr>
-								<td class="holiday"><span>8</span></td>
-								<td class="holiday"><span>9</span></td>
-								<td><span>10</span></td>
-								<td><span>11</span></td>
-								<td><span>12</span></td>
-								<td><span>13</span></td>
-								<td><span>14</span></td>
-							</tr>
-							<tr>
-								<td class="holiday"><span>15</span></td>
-								<td class="holiday"><span>16</span></td>
-								<td><span>17</span></td>
-								<td><span>18</span></td>
-								<td><span>19</span></td>
-								<td><span>20</span></td>
-								<td><span>21</span></td>
-							</tr>
-							<tr>
-								<td class="holiday"><span>22</span></td>
-								<td class="holiday"><span>23</span></td>
-								<td><span>24</span></td>
-								<td><span>25</span></td>
-								<td><span>26</span></td>
-								<td><span>27</span></td>
-								<td><span>28</span></td>
-							</tr>
-							<tr>
-								<td class="holiday"><span>29</span></td>
-								<td class="holiday"><span>30</span></td>
-								<td><span>31</span></td>
-								<td><span>1</span></td>
-								<td><span>2</span></td>
-								<td><span>3</span></td>
-								<td><span>4</span></td>
-							</tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div> <!-- //mainCal -->
-        </div> <!-- //mainSide -->
-        <!-- mainSide2 -->
-        <div class="mainSide2">
-            <!-- mainNotice -->
-            <div class="mainNotice">
-                <div class="mainTit">
-                    <div class="tit">공지 사항</div>
-                    <a href="/cm/notice.php" class="btnMore">More</a>
-                </div>
-                <div class="noticeList">
-                    <ul>
-                        <?php for($i=0;$i<$arrNoticeList["list"]["total"];$i++){?>
-                            <li><a href="/cm/notice.php?boardid=notice&mode=view&idx=<?=$arrNoticeList["list"][$i]["idx"]?>"> <span class="tit"><?=$arrNoticeList["list"][$i]["subject"]?></span> <span
-                                            class="date"><?=date('Y.m.d', strtotime($arrNoticeList["list"][$i]['wdate']))?></span> </a></li>
-                        <?php } ?>
-                    </ul>
-                </div>
-            </div> <!-- //mainNotice -->
-            <!-- mainYoutube -->
-            <div class="mainYoutube">
-                <div class="mainTit">
-                    <div class="tit">주영미 유튜브</div>
-                </div>
-                <div class="youtubeList">
-                    <ul>
-                        <?php for($i=0;$i<$arrYoutubeList["list"]["total"];$i++){?>
-                            <li><a href="<?=$arrYoutubeList["list"][$i]["homepage"]?>" target="_blank"><span class="img"><img src="/uploaded/board/youtube/<?=$arrYoutubeList["list"][$i]["re_name"]?>" alt="썸네일"></span>
-                                    <div class="text"><span class="tit"><?=$arrYoutubeList["list"][$i]["subject"]?></span>
-                                        <span class="txt"><?=$arrYoutubeList["list"][$i]["contents"]?></span>
-                                    </div>
-                                </a></li>
-                        <?php } ?>
-                    </ul>
-                </div>
-            </div> <!-- //mainYoutube -->
-            <!-- mainVideo -->
-            <div class="mainVideo">
-                <div class="mainTit">
-                    <div class="tit">주영미 안내</div>
-                    <div class="swiperPaging"></div>
-                </div>
-                <div class="videoSwiper">
-                    <div class="swiper-wrapper">
-                        <?php
-                        if (!empty($arrBottomPCBannerList["list"]) || !empty($arrBottomMOBannerList["list"])) {
-                            $total = max($arrBottomPCBannerList["list"]["total"], $arrBottomMOBannerList["list"]["total"]);
-                            for ($i = 0; $i < $total; $i++) {
-                                $pc_image = "/pub/images/mvisual01.png";
-                                $mo_image = "/pub/images/mvisual01.png";
-                                $url = "#this";
-                                $target = "";
-
-                                if (!empty($arrBottomPCBannerList["list"][$i]["b_image"])) {
-                                    $pc_image = "/uploaded/banner/" . $arrBottomPCBannerList["list"][$i]["b_image"];
-                                }
-                                if (!empty($arrBottomMOBannerList["list"][$i]["b_image"])) {
-                                    $mo_image = "/uploaded/banner/" . $arrBottomMOBannerList["list"][$i]["b_image"];
-                                }
-
-                                if (!empty($arrBottomPCBannerList["list"][$i]["b_url"])) {
-                                    $url = $arrBottomPCBannerList["list"][$i]["b_url"];
-                                    $target = " target='" . $arrBottomPCBannerList["list"][$i]["b_target"] . "' ";
-                                } elseif (!empty($arrBottomMOBannerList["list"][$i]["b_url"])) {
-                                    $url = $arrBottomMOBannerList["list"][$i]["b_url"];
-                                    $target = " target='" . $arrBottomMOBannerList["list"][$i]["b_target"] . "' ";
-                                }
-                                ?>
-                                <div class="swiper-slide"><a href="<?=$url?>" <?=$target?>><img src="<?=$pc_image?>" alt="슬라이드"> </a></div>
-                                <?php
-                            }
-                        } else {
-                            ?>
-                            <div class="swiper-slide"><a href="#;"> <img src="/images/thumb2_1.png" alt="슬라이드"> </a></div>
-                            <div class="swiper-slide"><a href="#;"> <img src="/images/thumb2_2.png" alt="슬라이드"> </a></div>
-                            <div class="swiper-slide"><a href="#;"> <img src="/images/thumb2_3.png" alt="슬라이드"> </a></div>
-                            <?php
-                        }
-                        ?>
-                    </div>
-                </div>
-            </div> <!-- //mainVideo -->
-        </div> <!-- //mainSide2 -->
-        <!-- snsIntro --->
-        <div class="snsIntro">
-            <div class="title">주안영상미디어센터의 <span>SNS를 소개</span>합니다.</div>
-            <div class="snsList">
-                <ul>
-                    <li><a href="https://blog.naver.com/juanmedia1731" target="_blank"> <span class="img"><img
-                                        src="/images/ico_sns4.svg" alt="네이버블로그"></span> <span class="tit">네이버블로그</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2Fjuan2622%2F%3Flocale%3Dko_KR"
-                           target="_blank"> <span class="img"><img src="/images/ico_sns2.svg" alt="페이스북"></span> <span
-                                    class="tit">페이스북</span> </a>
-                    </li>
-                    <li><a href="https://www.instagram.com/yeongsang.juan/" target="_blank"> <span class="img"><img
-                                        src="/images/ico_sns7.svg" alt="인스타그램"></span> <span class="tit">인스타그램</span>
-                        </a>
-                    </li>
-                    <li><a href="https://x.com/i/flow/login?redirect_after_login=%2Fjuanyeongsangm1" target="_blank">
-                            <span class="img"><img src="/images/ico_sns5.svg" alt="트위터"></span> <span
-                                    class="tit">트위터</span> </a></li>
-                    <li>
-                        <a href="https://www.daangn.com/kr/local-profile/%EC%A3%BC%EC%95%88%EC%98%81%EC%83%81%EB%AF%B8%EB%94%94%EC%96%B4%EC%84%BC%ED%84%B0-%EB%AF%B8%EB%94%94%EC%96%B4-%ED%8C%8C%ED%81%AC-%EB%8F%99%EB%84%A4%EC%97%85%EC%B2%B4-%EC%A3%BC%EC%95%88%EC%98%81%EC%83%81%EB%AF%B8%EB%94%94%EC%96%B4%EC%84%BC%ED%84%B0-%EB%AF%B8%EB%94%94%EC%96%B4-%ED%8C%8C%ED%81%AC-2068506/?in=%EC%9A%A9%EC%82%B0%EA%B5%AC-36"
-                           target="_blank"> <span class="img"><img src="/images/ico_sns6.svg" alt="당근마켓"></span> <span
-                                    class="tit">당근마켓</span> </a>
-                    </li>
-                    <li><a href="http://pf.kakao.com/_xcvsdG/friend" target="_blank"> <span class="img"><img
-                                        src="/images/ico_sns3.svg" alt="카카오톡"></span> <span class="tit">카카오톡 채널 추가</span>
-                        </a></li>
-                    <li><a href="http://imediaschool.kr/" target="_blank"> <span class="img"><img
-                                        src="/images/ico_sns1.svg" alt="아이미디어스쿨"></span> <span class="tit">아이미디어스쿨</span>
-                        </a></li>
-                </ul>
-            </div>
-        </div> <!-- //snsIntro --->
-    </div> <!-- //mainSec -->
-</div> <!-- //Container -->
-<?php
-include_once $_SERVER["DOCUMENT_ROOT"]."/module/popup/popup.inc.php";
-?>
-<?php include("./inc/quick.php"); ?>
-<?php include("./inc/footer.php"); ?>
-</div> <!-- //Wrap -->
+		// tabs
+		$(document).ready(function() {
+			$(".tabs button").click(function() {
+				var index = $(this).index();
+				$(".tabs button").removeClass("active");
+				$(this).addClass("active");
+				$(".tab-container .tab-content").hide();
+				$(".tab-container .tab-content").eq(index).show();
+			});
+		});
+	</script>
 </body>
 
 </html>
