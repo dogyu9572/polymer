@@ -1,37 +1,56 @@
 <?PHP
 $thisPHPname = basename($_SERVER['PHP_SELF']);
 switch($thisPHPname){
-	case 'admin_set.php' :	case 'admin.php' : case 'admin_info.php' : case 'admin_set_point.php' : case 'admin_set_search.php' :
-		$topMenuClass[1] = "on"; break;	
-	case 'member.php' : case 'member_info.php' : case 'member_add.php' : case 'member_outlist.php' : case 'member_standby.php' : case 'member_standby_info.php' : 
-		$topMenuClass[2] = "on"; break;
-	case 'log_hourly_view.php' : case 'log_daily_view.php' : case 'log_monthly_view.php' : case 'log_os_view.php' : case 'log_browser_view.php' : case 'log_ip_view.php' : case 'log_domain_view.php' : 
-	case 'log_referer_view.php' : case 'log_page_view.php' :
-		$topMenuClass[9] = "on"; break;
-	case 'banner.php' : case 'banner_add.php' : case 'banner_info.php' : 
-		$topMenuClass[4] = "on"; break;
-	case 'popup_list.php' : case 'popup_info.php' : case 'popup_add.php' : 
-		$topMenuClass[4] = "on"; break;
-	case 'category.php' : case 'category_info.php' : 
+	case 'admin.php' : case 'admin_info.php' : case 'admin_set_point.php' : case 'admin_set_search.php' : case  'admin_grade.php' : case  'admin_unlock.php' :
 		$topMenuClass[1] = "on"; break;
-
+    case 'category.php' : case 'category_info.php' :
+        $topMenuClass[1] = "on"; break;
+	case 'member.php' : case 'member_info.php' : case 'member_add.php' : case 'member_outlist.php' : case 'member_standby.php' : case 'member_standby_info.php' : case  'executive.php' : case  'non_member.php' :
+		$topMenuClass[2] = "on"; break;
+	/*case 'banner.php' : case 'banner_add.php' : case 'banner_info.php' :
+		$topMenuClass[17] = "on"; break;*/
+	case 'popup_list.php' : case 'popup_info.php' : case 'popup_add.php' : 
+		$topMenuClass[18] = "on"; break;
+    case 'admin_set.php' :
+        $topMenuClass[17] = "on"; break;
+    case 'log_hourly_view.php' : case 'log_daily_view.php' : case 'log_monthly_view.php' : case 'log_os_view.php' : case 'log_browser_view.php' : case 'log_ip_view.php' : case 'log_domain_view.php' :
+    case 'log_referer_view.php' : case 'log_page_view.php' :
+        $topMenuClass[19] = "on"; break;
 }
 
 unset($thisPHPname);
 
 if ($_REQUEST['boardid']) {
 	switch ($_REQUEST['boardid']) {
-		case 'meet_startups' :		case 'meet_investors' :
-			$topMenuClass[1] = "on";
+        case 'emailsms' : case 'emailsend' : case 'address' :
+            $topMenuClass[3] = "on";
+            break;
+        case 'notice' : case 'news' : case 'gallery' : case 'gallery_year' :
+        case 'branch' : case 'members' : case 'events' :
+        case 'inforum' : case 'jobs' : case 'donation' :
+        case 'newsletter' :
+			$topMenuClass[15] = "on";
 			break;
-		case 'notice' :		case 'gallery' :
-			$topMenuClass[] = "on";
+		case 'qna' :
+			$topMenuClass[16] = "on";
 			break;
-		case 'promotion' :		case 'apt_talks' :
-			$topMenuClass[3] = "on";
-			break;
+        case 'history' :
+            $topMenuClass[17] = "on";
+            break;
 	}
 }
+
+if ($_REQUEST['b_type']) {
+    switch ($_REQUEST['b_type']) {
+        case '2' :
+            $topMenuClass[17] = "on";
+            break;
+        case '1' :
+            $topMenuClass[18] = "on";
+            break;
+    }
+}
+
 
 ?>
 <div class="header">
@@ -61,8 +80,8 @@ if ($_REQUEST['boardid']) {
 		</ul>
 	</div>
 	<div class="mem_set">
-		<div class="name"><i><img src="/backoffice/pub/images/icon_mem.svg" alt=""></i><?=$_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["ID"]?>(<?=$_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["NAME"]?>)님 로그인</div>
-		<a href="/backoffice/">HOME</a>
+		<div class="name"><i><img src="/backoffice/pub/images/icon_mem.svg" alt=""></i><?=$_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["ID"]?>(<?=$_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["NAME"]?>)님</div>
+<!--		<a href="/backoffice/">HOME</a>-->
 		<a href="/" target="_blank">내 홈페이지</a>
 		<a href="/backoffice/auth/logout.php">로그아웃</a>
 	</div>

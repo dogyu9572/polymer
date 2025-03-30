@@ -394,6 +394,14 @@ $_SITE["ARLIMTALK_USE"] = true;
 $scale = 10;
 $pagescale = 10;
 
+/*********************************************************************/
+// 고분자학회 추가 변수 설정
+/*********************************************************************/
+$arrAdminGrade = array(
+	"ADMIN" => "총괄 관리자",
+	"ROOT" => "일반 관리자"
+);
+
 include $_SERVER['DOCUMENT_ROOT'] . "/common/lib/html.inc.php";
 include $_SERVER['DOCUMENT_ROOT'] . "/common/lib/util.inc.php";
 include $_SERVER['DOCUMENT_ROOT'] . "/common/lib/navigation.inc.php";

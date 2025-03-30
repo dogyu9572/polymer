@@ -22,6 +22,13 @@ if(isset($_POST['evnMode'])=='Login'){
 		jsMsg("해당하는 아이디가 없습니다.");
 		jsHistory("-1");
 	}
+
+    $adminLock =  isAdminLocked ($arrInfo["list"][0]["a_id"]);
+    if ($adminLock) {
+        jsMsg("관리자 계정이 잠겼습니다. 관리자에게 문의하세요.");
+        jsHistory("-1");
+    }
+
 	$arrInfoPW = getAdminPass($_POST['Password']);
 
 	//echo $arrInfoPW['list'][0]['pw'];
@@ -30,6 +37,7 @@ if(isset($_POST['evnMode'])=='Login'){
 	//if($arrInfo["list"][0]["a_pw"] == $_POST['Password']) {		## 암호화 미적용
 		//로그인정보 기록
 		setAdminLoginLog($arrInfo["list"][0]["a_id"],"Y");
+        resetAdminLoginFail($arrInfo["list"][0]["a_id"]);
 
 		// 로그인 정보로 세션을 생성
 		$_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["ID"] = $arrInfo["list"][0]["a_id"];
@@ -44,7 +52,13 @@ if(isset($_POST['evnMode'])=='Login'){
 
 	}else{
 		//로그인정보 기록
-		//setAdminLoginLog(mysqli_real_escape_string($_POST["ID"]),"N");
+		setAdminLoginLog($_POST["ID"],"N");
+        $loginFail = updateAdminLoginFail($_POST["ID"]);
+
+        if ($loginFail >= 10) {
+            jsMsg("관리자 계정이 잠겼습니다. 관리자에게 문의하세요.");
+            jsHistory("-1");
+        }
 
 		jsMsg("비밀번호가 일치하지 않습니다.");
 		jsHistory("-1");

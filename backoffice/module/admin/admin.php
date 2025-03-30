@@ -126,7 +126,7 @@ function CheckForm(frm){
 							<td><i class="mo_vw">설명</i><?=$arrList['list'][$i]['a_note']?></td>
 							<td><i class="mo_vw">연락처</i><?=$arrList['list'][$i]['a_phone']?></td>
 							<td><i class="mo_vw">이메일</i><?=$arrList['list'][$i]['a_email']?></td>
-							<td><i class="mo_vw">권한</i><?=$arrList['list'][$i]['a_grade']?></td>
+							<td><i class="mo_vw">권한</i><?=$arrAdminGrade[$arrList['list'][$i]['a_grade']]?></td>
 							<td><i class="mo_vw">관리권한</i>								
 							<?
 							$arrAuthCode = explode(",",$arrList['list'][$i]['a_auth']);

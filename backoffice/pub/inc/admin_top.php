@@ -15,6 +15,7 @@ for($i=0;$i<$arrMenuList["total"];$i++){
 	$arrayMenuList[$arrMenuList["list"][$i]['m_code']] = $arrMenuList["list"][$i]['m_name'];
 
 	$arrMenuSubList = getAdminMenuSub($arrMenuList["list"][$i]['m_code']);
+
 	for($j=0;$j<$arrMenuSubList["total"];$j++){
 		$arrayMyMenuSub[] = $arrMenuSubList["list"][$j]['m_code'];
 	}

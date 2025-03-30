@@ -27,19 +27,6 @@ if(!isset($boardid)){
 	$boardid = $_REQUEST['boardid'];
 }
 
-if($boardid=="timetable" && !$_GET["sk"]){
-	$_GET["sw"]	= "sd";
-	$_GET["sk"]	= date("Y-m-d");
-}
-if($boardid=="covid" && !$_REQUEST["scsdate"] && !$_REQUEST["scedate"]){
-	$_REQUEST["scsdate"]	= date("Y-m-d");
-	$_REQUEST["scedate"]	= date("Y-m-d");
-}
-if($boardid=="slideblock" && !$_REQUEST["scsdate"] && !$_REQUEST["scedate"] && $_REQUEST["dateflag"]!="all"){
-	$_REQUEST["scsdate"]	= date("Y-m-d");
-	$_REQUEST["scedate"]	= date("Y-m-d");
-}
-
 //게시판 정보
 $arrBoardInfo = getBoardInfo($_conf_tbl['board_info'], $boardid);
 //회원등급 목록
@@ -50,11 +37,12 @@ for($i=0;$i<$arrLevelList["total"];$i++){
 if(!isset($_SESSION[$_SITE["DOMAIN"]]["MEMBER"]["LEVEL"])){
 	$_SESSION[$_SITE["DOMAIN"]]["MEMBER"]["LEVEL"] = 0;
 }
+
 //_DEBUG($arrBoardInfo);
 //DB해제
 SetDisConn($dblink);
 
-include "./menu.php";
+include $_SERVER['DOCUMENT_ROOT'] . "/backoffice/module/admin/menu.php";
 
 //DB연결
 $dblink = SetConn($_conf_db["main_db"]);
@@ -74,6 +62,7 @@ if($arrBoardInfo["total"] > 0 || $boardid=="equ_statistic"){
 		case("write"):
 			//관리자이거나 회원등급이 게시물 등록등급 이상일 경우
 			if($_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["ID"] || $_SESSION[$_SITE["DOMAIN"]]["MEMBER"]["LEVEL"] >= $arrBoardInfo["list"][0]["writelevel"]){
+				echo "<script src='/backoffice/module/board/js/form.js'></script>";
 				if($arrBoardInfo["list"][0]["boardid"]=="qna1"){	## 일정관리
 					$arrEtc2List = getCategoryList("2","Y");	// 업종
 				}else if($boardid == "sub_evaluation"){
@@ -106,7 +95,7 @@ if($arrBoardInfo["total"] > 0 || $boardid=="equ_statistic"){
 			//관리자이거나 회원등급이 게시물 등록등급 이상일 경우
 			if($_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["ID"] || $_SESSION[$_SITE["DOMAIN"]]["MEMBER"]["LEVEL"] >= $arrBoardInfo["list"][0]["writelevel"]){
 				$arrBoardArticle = getBoardArticleView($arrBoardInfo["list"][0]["boardid"], $_GET["category"], $_GET["idx"],"modify");
-				echo "<script src='/backoffice/pub/js/board.js'></script>";
+				echo "<script src='/backoffice/module/board/js/form.js'></script>";
 				if($arrBoardArticle["total"] > 0){
 					//글잠금이 아니거나, 인증을 했거나, 관리자일 경우 글 보여줌
 					if($arrBoardArticle["list"][0]['uselock']!="Y" || $_SESSION[$_SITE["DOMAIN"]][$boardid."|".$_GET["idx"]]==TRUE || $_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["ID"]){
@@ -201,6 +190,8 @@ if($arrBoardInfo["total"] > 0 || $boardid=="equ_statistic"){
 			//getBoardListBaseNFile : 파일테이블과 left join
 			//getBoardListBaseNMemoCnt : 베이스 + 메모카운트
 
+		echo "<script src='/backoffice/module/board/js/list.js'></script>";
+
 		if (isset($_GET['page_size'])) {
 			if ($_GET['page_size'] == 0) {
 				$arrBoardInfo["list"][0]["scale"] = 0;
@@ -236,23 +227,8 @@ if($arrBoardInfo["total"] > 0 || $boardid=="equ_statistic"){
 					$arrBoardList = getBoardListBaseNFile($arrBoardInfo["list"][0]["boardid"], $_GET["category"], $_GET['sw'], $_GET['sk'], $arrBoardInfo["list"][0]["scale"], $_GET['offset'],'', "admin");
 				}
 
-				if($arrBoardInfo["list"][0]["boardid"]=="qna1"){	## 일정관리
-					$arrEtc2List = getCategoryList("2","Y");	// 업종
-				}
+				include($_SITE["BOARD_SKIN"] . $arrBoardInfo["list"][0]['skin'] . "/list.php");
 
-				if($arrBoardInfo["list"][0]['skin']=="levy"){
-					 include($_SITE["BOARD_SKIN"].$arrBoardInfo["list"][0]['skin']."/list_admin.php");
-				} else {
-					if($arrBoardInfo["list"][0]["boardid"]=="trmcal"){	## 일정관리
-						$arrDoctorList = getBoardListBase("trmdoctor", "","","",0,0);
-					}
-					if ($boardid == "equ_statistic") {
-						$arrBoardList = getBoardListBaseNFile("equ", $_GET["category"], $_GET['sw'], $_GET['sk'], $arrBoardInfo["list"][0]["scale"], $_GET['offset'],'', "admin");
-						include($_SITE["BOARD_SKIN"] . "equ/statistic.php");
-					} else {
-						include($_SITE["BOARD_SKIN"] . $arrBoardInfo["list"][0]['skin'] . "/list.php");
-					}
-				 }
 				echo "</div>";
 			}else{
 				jsMsg($arrLevelInfo[$arrBoardInfo["list"][0]["listlevel"]] . " 이상 글 목록보기가 가능 합니다.");
@@ -260,8 +236,7 @@ if($arrBoardInfo["total"] > 0 || $boardid=="equ_statistic"){
 			}
 			break;
 	}
-	//게시판 푸터
-	//echo stripslashes($arrBoardInfo["list"][0]["footer"]);
+
 }else{
 	jsMsg("존재하지 않는 게시판 아이디 입니다.");
 	jsHistory("-1");

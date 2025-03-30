@@ -1,6 +1,6 @@
 <?PHP
 include $_SERVER['DOCUMENT_ROOT'] . "/backoffice/pub/inc/admin_top.php";
-include "./menu.php";
+include $_SERVER['DOCUMENT_ROOT'] . "/backoffice/module/admin/menu.php";
 
 include $_SERVER['DOCUMENT_ROOT'] . "/module/member/member.lib.php";
 if(!in_array("member_manage",$_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["AUTH"]) && $_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["GRADE"]!="ROOT"):

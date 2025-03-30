@@ -12,7 +12,6 @@ if(!isset($arrBoardArticle["list"][0]['subject'])){ $arrBoardArticle["list"][0][
 if(!isset($arrBoardArticle["list"][0]['etc_1'])){	$arrBoardArticle["list"][0]['etc_1']=""; }
 if(!isset($arrBoardArticle["list"][0]['contents'])){	$arrBoardArticle["list"][0]['contents']=""; }
 ################################################### PHP 7 Set ED
-
 if($_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["ID"] && $_SERVER["PHP_SELF"]=="/backoffice/module/board/board_view.php"){
 ###################################################### 관리자 페이지 ######################################################?>
 <?if($_GET['mode']=="write"){$inputText="등록";}else{$inputText="수정";}?>
@@ -23,12 +22,10 @@ function execDaumPostcode(pr_zip, pr_Add1, pr_Add2) {
 	new daum.Postcode({
 		oncomplete: function(data) {
 			// 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
-
 			// 각 주소의 노출 규칙에 따라 주소를 조합한다.
 			// 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
 			var addr = ''; // 주소 변수
 			var extraAddr = ''; // 참고항목 변수
-
 			//사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
 			if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
 				addr = data.roadAddress;
@@ -54,7 +51,6 @@ function execDaumPostcode(pr_zip, pr_Add1, pr_Add2) {
 //				document.getElementById(pr_Add1).value = extraAddr;
 			
 			}
-
 			// 우편번호와 주소 정보를 해당 필드에 넣는다.
 			document.getElementById(pr_zip).value = data.zonecode;
 			document.getElementById(pr_Add1).value = addr + " " + extraAddr;
@@ -76,9 +72,7 @@ function frmCheck(frm){
 	*/
 	
 	try{ contents.outputBodyHTML(); } catch(e){ }
-
 	frm.submit();
-
 }
 $(document).ready(function() {
 	$.each($('input.calendar'), function() {
@@ -116,7 +110,6 @@ function set_datepicker($cont) {
 		yearRange: '1921:c+5'
 	});
 }
-
 //첨부파일 열 추가
 var rowcount = 0;
 function append() {   
@@ -165,14 +158,12 @@ function fnCat1(tval){
 	);
 }
 //첨부파일 열 추가
-
 function fnSave(){
 	var frm = document.form1;
 	frm.returnURL.value = '<?=$_SERVER['REQUEST_URI']?>';
 	frm.altYN.value = 'Y';
 	frm.submit();
 }
-
 function fnGoodSelect(stridx, inputName){			
 	if(stridx){ $(".is-close-btn").click();	}
 	var msds = $("input[name='"+inputName+"']").val();
@@ -183,7 +174,6 @@ function fnGoodSelect(stridx, inputName){
 	}	
 	fnGoodPrint(inputName);
 }
-
 function fnGoodPrint(inputName, orderby){
 	var msds = $("input[name='"+inputName+"']").val();
 	var listName = "#msdslist1";
@@ -297,7 +287,6 @@ function fnEtc5Val(ths)	{
 //-->
 </script>
 <div class="container">
-
 	<div class="title"><?=$arrBoardInfo["list"][0]["boardname"]?> <?=$inputText?></div>
 	
 	<div class="inbox write_tbl mo_break_write">
@@ -317,7 +306,6 @@ function fnEtc5Val(ths)	{
 		<?endif;?>
 		<input type="hidden" name="image1idxs" value="<?=$arrBoardArticle["list"][0]["image1idxs"]?>">
 		<input type="hidden" name="image2idxs" value="<?=$arrBoardArticle["list"][0]["image2idxs"]?>">
-
 		
 		<input type="hidden" name="name" value="<?=stripslashes($arrBoardArticle["list"][0]['name'])?>">
 		<input type="hidden" name="tel" value="<?=stripslashes($arrBoardArticle["list"][0]['tel'])?>">
@@ -325,7 +313,6 @@ function fnEtc5Val(ths)	{
 		<input type="hidden" name="w_user" value="<?=stripslashes($arrBoardArticle["list"][0]['w_user'])?>">
 		<input type="hidden" name="wdate" value="<?=stripslashes($arrBoardArticle["list"][0]['wdate'])?>">
 		<input type="hidden" name="etc_4" value="<?=stripslashes($arrBoardArticle["list"][0]['etc_4'])?>">
-
 		<div class="tit"><?=$arrBoardInfo["list"][0]["boardname"]?> 정보 <i>*</i></div>
 		<table>
 			<tr style="display:none;">
@@ -444,7 +431,6 @@ function fnEtc5Val(ths)	{
 				</td>
 			</tr>	
 
-
 			<tr style="display:none;">
 				<th>제목</th>
 				<td><div class="inputs"><input type="text" class="w4" name="subject" maxlength="100" value="<?=stripslashes($arrBoardArticle["list"][0]['subject'])?>"></div></td>
@@ -493,7 +479,6 @@ function fnEtc5Val(ths)	{
 			</tr>
 						
 		</table>		
-
 		<div class="btns">
 			<a href="<?=$_SERVER["PHP_SELF"]?>?boardid=<?=$arrBoardInfo["list"][0]["boardid"]?>&mode=list&category=<?=$_GET['category']?>" class="btn btn_list">목록보기</a>
 			<a href="javascript:void(0)" onclick="location.reload()" class="btn btn_cancel">취소</a>
@@ -549,9 +534,7 @@ function frmCheck(frm){
 	}
 	
 	try{ contents.outputBodyHTML(); } catch(e){ }
-
 	frm.submit();
-
 }	
 //-->
 </script>

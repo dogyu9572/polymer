@@ -58,16 +58,16 @@ $arrBAuth = explode("|",str_replace(" ","",$arrInfo["list"][0]['b_auth']));
 				<th>이메일</th>
 				<td><div class="inputs"><input type="text" class="w4" name="a_email" maxlength="50" value="<?=stripslashes($arrInfo["list"][0]['a_email'])?>"></div></td>
 			</tr>
-			<tr>
-				<th>등급</th>
-				<td><div class="inputs">
-					<label class="radio"><input type="radio"  id="radio1" name="a_grade" value="ROOT"<?=$arrInfo["list"][0]['a_grade']=="ROOT"?" checked":""?>><i></i>ROOT</label>
-					<label class="radio"><input type="radio"  id="radio2" name="a_grade" value="ADMIN"<?=$arrInfo["list"][0]['a_grade']=="ADMIN"?" checked":""?>><i></i>ADMIN</label> 
-					<em>(ROOT 일경우 아래권한에 관계없이 모든 메뉴 접근 가능)</em>
-				</div></td>
-			</tr>
-			<tr>
-				<th>관리권한</th>
+            <tr>
+                <th>등급</th>
+                <td><div class="inputs">
+                        <label class="radio"><input type="radio" id="radio1" name="a_grade" value="ROOT" <?=$arrInfo["list"][0]['a_grade']=="ROOT"?" checked":""?> onclick="togglePermissions('hide')"><i></i>총괄관리자</label>
+                        <label class="radio"><input type="radio" id="radio2" name="a_grade" value="ADMIN" <?=$arrInfo["list"][0]['a_grade']=="ADMIN"?" checked":""?> onclick="togglePermissions('show')"><i></i>일반관리자</label>
+                        <em>(총괄관리자는 모든 메뉴 접근 가능)</em>
+                    </div></td>
+            </tr>
+            <tr id="permissionsRow" style="<?=$arrInfo["list"][0]['a_grade']=="ROOT"?"display:none;":""?>">
+                <th>관리권한</th>
 				<td>
 					<?					
 					//var_dump($arrayMyMenuSub);					
@@ -114,7 +114,46 @@ $arrBAuth = explode("|",str_replace(" ","",$arrInfo["list"][0]['b_auth']));
 		</div>
 		</form>
 	</div> <!-- //inbox -->
+    <script>
+        function togglePermissions(action) {
+            var permRow = document.getElementById('permissionsRow');
+            var checkboxes = document.getElementsByClassName('auth_box');
 
+            if (action === 'hide') {
+                // 총괄관리자 선택 시 행 숨기고 모든 권한 체크
+                permRow.style.display = 'none';
+                for (var i = 0; i < checkboxes.length; i++) {
+                    checkboxes[i].checked = true;
+                }
+            } else {
+                // 일반관리자 선택 시 행 보이고 DB 값으로 복원
+                permRow.style.display = '';
+
+                // a_auth (메인 권한) 체크박스 복원
+                var mainAuth = [<?php echo '"'.implode('","', $arrAuth).'"'; ?>];
+                for (var i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].name === 'a_auth[]') {
+                        checkboxes[i].checked = mainAuth.includes(checkboxes[i].value);
+                    }
+                }
+
+                // b_auth (서브 권한) 체크박스 복원
+                var subAuth = [<?php echo '"'.implode('","', $arrBAuth).'"'; ?>];
+                for (var i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].name === 'b_auth[]') {
+                        checkboxes[i].checked = subAuth.includes(checkboxes[i].value);
+                    }
+                }
+            }
+        }
+
+        // 페이지 로드 시 초기 상태 설정
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.getElementById('radio1').checked) {
+                togglePermissions('hide');
+            }
+        });
+    </script>
 </div>
 <?php
 ######################################################## 디자인 ED

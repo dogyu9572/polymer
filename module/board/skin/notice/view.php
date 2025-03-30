@@ -24,7 +24,6 @@ function checkComment(frm){
 		return false;
 	}
 	<?}else{?>
-
 	alert("<?=$arrLevelInfo[$arrBoardInfo["list"][0]["replylevel"]]?> 이상 댓글입력이 가능합니다.");
 	return false;
 	<?}?>
@@ -109,92 +108,78 @@ function doLoad(){
 	</dl> 
 </div>
 <?}else{###################################################### 사용자 페이지 ######################################################?>
-<script language="javascript">
-function fileDownload(boardid,b_idx,idx,fnm){
-	var exn = fnm.split(".");
-	exn = exn[1].toLowerCase();
-	if(exn=="jpg" || exn=="gif" || exn=="png" || exn=="bmp"){
-		obj = window.open("/module/board/download.php?boardid="+boardid+"&b_idx="+b_idx+"&idx="+idx,"urlCheck","width=100,height=100,menubars=0, toolbars=0");
-	}else{
-		document.fileFrm.boardid.value=boardid;
-		document.fileFrm.b_idx.value=b_idx;
-		document.fileFrm.idx.value=idx;
-		document.fileFrm.target="fileFrame";
-		document.fileFrm.submit();
-	}
-
-}
-</script>
-<iframe name="fileFrame" style="display:none;"></iframe>
-<form name="fileFrm" action="/module/board/download.php"/>
-<input type="hidden" name="boardid"/>
-<input type="hidden" name="b_idx"/>
-<input type="hidden" name="idx"/>
-</form>
-<?
-if($arrBoardArticle["list"][0]['no']=="0"){
-	$noticeTxt = '<span class="chip-inform">공지</span>';
-}		
-?>
-<h3 class="heading3">공지사항</h3>
-<div class="inner">
-	<div class="board-view">
-		<div class="view-top">
-			<h4><?=$noticeTxt?><?=stripslashes($arrBoardArticle["list"][0]['subject'])?></h4>
-			<div class="detail">
-				<dl>
-					<dt>등록일</dt>
-					<dd><?=str_replace("-","-",substr($arrBoardArticle["list"][0]['schedule_date'],0,10))?></dd>
-				</dl>
-			</div>
-		</div>
-		<div class="view-con">
-		<?=str_replace("height:","max-height:",stripslashes($arrBoardArticle["list"][0]['contents']))?>
-		</div>
-		<div class="attached">
-		<?
-		$upfile = true;
-		if($arrBoardArticle["total_files"]>0){
-			for ($i=0;$i<$arrBoardArticle["total_files"];$i++) {
-				if(substr($arrBoardArticle["files"][$i]['re_name'],0,2) != "l_"){
-					$upfile = false;
-		?>
-		<a href="/uploaded/board/<?=$arrBoardArticle["files"][$i]['boardid']?>/<?=$arrBoardArticle["files"][$i]['re_name']?>" download="<?=$arrBoardArticle["files"][$i]['ori_name']?>"><?=$arrBoardArticle["files"][$i]['ori_name']?></a>		
-		<?php
-				}
-			} 
-		}
-		if($upfile){ echo "<a href=\"javascript:void(0);\">첨부파일이 없습니다.</a>"; }
-		?>	
-		</div>
-		<div class="move-btn">
-			<?if($arrBoardArticle["prev"]["idx"] !=0){?>			
-			<a href="<?=$_SERVER["PHP_SELF"]?>?boardid=<?=$arrBoardInfo["list"][0]["boardid"]?>&mode=view&idx=<?=$arrBoardArticle["prev"]["idx"]?>&category=<?=$_GET['category']?>" class="prev">
-				<span class="label">이전글</span>
-				<span class="title"><?=text_cut($arrBoardArticle["prev"]["subject"],$arrBoardInfo["list"][0]['subjectcut'])?></span>
-			</a>
-			<?}else{?>
-			<a href="javascript:void(0);" class="prev">
-				<span class="label">이전글</span>
-				<span class="title">이전글이 없습니다.</span>
-			</a>
-			<?}?>
-			<?if($arrBoardArticle["next"]["idx"] !=0){?>
-			<a href="<?=$_SERVER["PHP_SELF"]?>?boardid=<?=$arrBoardInfo["list"][0]["boardid"]?>&mode=view&idx=<?=$arrBoardArticle["next"]["idx"]?>&category=<?=$_GET['category']?>" class="next">
-				<span class="label">다음글</span>
-				<span class="title"><?=text_cut($arrBoardArticle["next"]["subject"],$arrBoardInfo["list"][0]['subjectcut'])?></span>
-			</a>
-			<?}else{?>
-			<a href="javascript:void(0);" class="next">
-				<span class="label">다음글</span>
-				<span class="title">다음글이 없습니다.</span>
-			</a>
-			<?}?>
-		</div>
-	</div>
-	<div class="btn-wrap">
-		<a href="<?=$_SERVER["PHP_SELF"]?>?boardid=<?=$arrBoardInfo["list"][0]["boardid"]?>&mode=list&sk=<?=$_GET['sk']?>&sw=<?=$_GET['sw']?>&offset=<?=$_GET['offset']?>&category=<?=$_GET['category']?>" class="btn black">목록으로</a>
-	</div>
-</div>
-
+    <script language="javascript">
+        function fileDownload(boardid,b_idx,idx,fnm){
+            var exn = fnm.split(".");
+            exn = exn[1].toLowerCase();
+            if(exn=="jpg" || exn=="gif" || exn=="png" || exn=="bmp"){
+                obj = window.open("/module/board/download.php?boardid="+boardid+"&b_idx="+b_idx+"&idx="+idx,"urlCheck","width=100,height=100,menubars=0, toolbars=0");
+            }else{
+                document.fileFrm.boardid.value=boardid;
+                document.fileFrm.b_idx.value=b_idx;
+                document.fileFrm.idx.value=idx;
+                document.fileFrm.target="fileFrame";
+                document.fileFrm.submit();
+            }
+        }
+    </script>
+    <iframe name="fileFrame" style="display:none;"></iframe>
+    <form name="fileFrm" action="/module/board/download.php"/>
+    <input type="hidden" name="boardid"/>
+    <input type="hidden" name="b_idx"/>
+    <input type="hidden" name="idx"/>
+    </form>
+    <div class="board-title">
+        <p class="heading3"><?=stripslashes($arrBoardArticle["list"][0]['subject'])?></p>
+        <div class="info">
+            <p><span class="t-secondary t-divide">작성자</span><?=stripslashes($arrBoardArticle["list"][0]['name'])?></p>
+            <p><span class="t-secondary t-divide">작성일</span><?=date('Y.m.d', strtotime($arrBoardArticle["list"][0]['wdate']))?></p>
+            <p><span class="t-secondary t-divide">조회수</span><?=$arrBoardArticle["list"][0]['hit']?></p>
+        </div>
+    </div>
+    <div class="brd-content no-bottom">
+        <div class="con">
+            <?=stripslashes($arrBoardArticle["list"][0]['contents'])?>
+        </div>
+        <div class="attached">
+            <?php
+            if($arrBoardArticle["total_files"] > 0) {
+                for($i=0; $i<$arrBoardArticle["total_files"]; $i++) {
+                    echo '<a href="javascript:void(0);" onclick="fileDownload(\''.$arrBoardArticle["files"][$i]['boardid'].'\',\''.$arrBoardArticle["files"][$i]['b_idx'].'\',\''.$arrBoardArticle["files"][$i]['idx'].'\',\''.$arrBoardArticle["files"][$i]['ori_name'].'\');">'.$arrBoardArticle["files"][$i]['ori_name'].'</a>';
+                }
+            } else {
+                echo '첨부파일이 없습니다.';
+            }
+            ?>
+        </div>
+        <div class="prevnext">
+            <dl class="prev">
+                <dt>이전 글</dt>
+                <dd>
+                    <?php if ($arrBoardArticle["prev"]["idx"] != 0) { ?>
+                        <a href="<?=$_SERVER["PHP_SELF"]?>?boardid=<?=$arrBoardInfo["list"][0]["boardid"]?>&mode=view&idx=<?=$arrBoardArticle["prev"]["idx"]?>&category=<?=$_GET['category']?>">
+                            <?=text_cut($arrBoardArticle["prev"]["subject"], $arrBoardInfo["list"][0]['subjectcut'])?>
+                        </a>
+                    <?php } else { ?>
+                        <a href="javascript:void(0);" class="disabled">이전글이 없습니다.</a>
+                    <?php } ?>
+                </dd>
+            </dl>
+            <dl class="next">
+                <dt>다음 글</dt>
+                <dd>
+                    <?php if ($arrBoardArticle["next"]["idx"] != 0) { ?>
+                        <a href="<?=$_SERVER["PHP_SELF"]?>?boardid=<?=$arrBoardInfo["list"][0]["boardid"]?>&mode=view&idx=<?=$arrBoardArticle["next"]["idx"]?>&category=<?=$_GET['category']?>">
+                            <?=text_cut($arrBoardArticle["next"]["subject"], $arrBoardInfo["list"][0]['subjectcut'])?>
+                        </a>
+                    <?php } else { ?>
+                        <a href="javascript:void(0);" class="disabled">다음글이 없습니다.</a>
+                    <?php } ?>
+                </dd>
+            </dl>
+        </div>
+    </div>
+    <div class="t-center">
+        <a href="<?=$_SERVER["PHP_SELF"]?>?boardid=<?=$arrBoardInfo["list"][0]["boardid"]?>&mode=list&sk=<?=$_GET['sk']?>&sw=<?=$_GET['sw']?>&offset=<?=$_GET['offset']?>&category=<?=$_GET['category']?>"class="btn-rg outline-dark w-22">목록으로</a>
+    </div>
 <?}###################################################### 사용자 페이지 ###################################################### END ?>

@@ -11,7 +11,6 @@ if(!isset($arrBoardInfo["list"][0]["scale"])){		$arrBoardInfo["list"][0]["scale"
 if(!isset($arrBoardInfo["list"][0]["pagescale"])){	$arrBoardInfo["list"][0]["pagescale"]=0; }
 if(!isset($arrBoardInfo["list"][0]["boardid"])){	$arrBoardInfo["list"][0]["boardid"]=""; }
 ################################################### PHP 7 Set ED
-
 if($_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["ID"] && $_SERVER["PHP_SELF"]=="/backoffice/module/board/board_view.php"){
 	if(!in_array("board_manage",$_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["AUTH"]) && $_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["GRADE"]!="ROOT"):
 	jsMsg("권한이 없습니다.");
@@ -48,8 +47,7 @@ function set_datepicker($cont) {
 		yearRange: '1921:c+5'
 	});
 }
-
-function boardDel(val){	
+function boardDel(val){
 	if(confirm("삭제 하시겠습니까?")) {
 		$.post("/module/board/ajax_board_del.php", { evnMode: "delete", g_idx: val, boardid: "<?=$arrBoardInfo["list"][0]["boardid"]?>" },
 		function(data){		
@@ -64,7 +62,6 @@ function doLoad(){
 // 선택 삭제시 singleSelect=true 값 변경 false
 function getSelections(){
 	var ss = "0";
-
 	var rows = $('input:checkbox[name=chk_list]:checked');
 	
 	for(var i=0; i<rows.length; i++){
@@ -86,7 +83,6 @@ $(function(){
         else  $(".chk_list").prop('checked', false);
     });
 });
-
 // 순서 변경
 $(function() {
 	/*
@@ -157,13 +153,10 @@ function fnAjaxYN(objt, sf){
 //-->
 </script>
 <div class="container">
-
 	<div class="title"><?=$arrBoardInfo["list"][0]["boardname"]?></div>
-
 	<form name="form1" method="get" action="<?=$_SERVER["PHP_SELF"]?>">
 	<input type="hidden" name="boardid" value="<?=$arrBoardInfo["list"][0]["boardid"]?>">
-
-	<div class="inbox top_search">		
+	<div class="inbox top_search">
 		<!--<dl>
 			<dt>문의유형</dt>
 			<dd><select name="category" class="text" onchange="document.form1.submit()" style="width:120px;">
@@ -225,7 +218,6 @@ function fnAjaxYN(objt, sf){
 	</div>
 <?
 $arrCntInfo = getArticleList("tbl_board_qna", 0, 0, $orderby=" where etc_1<>'Y' ");
-
 ?>
 	<div class="inbox">
 		<div class="bdr_top">
@@ -324,7 +316,6 @@ $arrCntInfo = getArticleList("tbl_board_qna", 0, 0, $orderby=" where etc_1<>'Y' 
 								$categoryTitle = '<span class="notiTit">공지</span>';
 								$noticeMo = '<span class="notiTit">공지</span>';
 							}
-
 							$imgsrc[$i] = "/uploaded/board/".$arrBoardInfo["list"][0]["boardid"]."/".$arrBoardList["list"][$i]['re_name'];
 							############################ 파일 확인 #############################
 							$arrBoardArticle = getBoardArticleView($arrBoardInfo["list"][0]["boardid"], "", $arrBoardList["list"][$i]['idx'],"list");
@@ -347,7 +338,7 @@ $arrCntInfo = getArticleList("tbl_board_qna", 0, 0, $orderby=" where etc_1<>'Y' 
 							<td style="width:10%;">
 								<div class="btns">
 									<a href="<?=$_SERVER["PHP_SELF"]?>?boardid=<?=$arrBoardInfo["list"][0]["boardid"]?>&mode=modify&idx=<?=$arrBoardList["list"][$i]['idx']?>&category=<?=$_GET['category']?>" class="btn modi">수정</a>
-									<button type="button" class="btn del" onclick="boardDel(<?=$arrBoardList["list"][$i]['idx']?>)">삭제</button>
+									<button type="button" class="btn del" onclick="boardDel(<?=$arrBoardList["list"][$i]['idx']?>, '<?=$arrBoardInfo["list"][0]["boardid"]?>')">삭제</button>
 								</div>
 							</td>
 						</tr>
@@ -363,7 +354,6 @@ $arrCntInfo = getArticleList("tbl_board_qna", 0, 0, $orderby=" where etc_1<>'Y' 
 				</table>
 			</div>
 		</div>
-
 		<div class="bdr_btm">
 			<div class="paging">	
 			<?
@@ -478,7 +468,6 @@ $(document).ready(function(){
 							$fileImg[$i] = '<i class="file"></i>';
 						}
 					}
-
 					if($arrBoardList["list"][$i]['etc_1']=="Y"){
 						$arrBoardList["list"][$i]['etc_txt'] = '<i class="end">답변완료</i>';
 					}else{
@@ -499,7 +488,6 @@ $(document).ready(function(){
 			?>	
 			</tbody>
 		</table>
-
 		<div class="board_bottom">
 			<div class="paging">
 			<?

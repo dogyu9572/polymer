@@ -38,6 +38,11 @@ if($_POST['evnMode']=="createBBS"){
 	$boardid = str_replace(".","",str_replace("/","", trim($_REQUEST['id'])));
 	$makeRS = makeBoard($boardid);
 
+    $src= $_SERVER ['DOCUMENT_ROOT']."/module/board/skin/def/def_notice";
+    $dst= $_SERVER ['DOCUMENT_ROOT']."/module/board/skin/".$_REQUEST['id'];
+    $editRS = recursive_copy($src,$dst);
+
+
 	if($makeRS==true){
 		//디렉토리 생성
 		if(rmkdir($_SITE["BOARD_DATA"] . "/" . $boardid, 0777)){

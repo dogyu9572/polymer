@@ -1,6 +1,6 @@
 <?PHP
 include $_SERVER['DOCUMENT_ROOT'] . "/backoffice/pub/inc/admin_top.php";
-include $_SERVER['DOCUMENT_ROOT'] . "/backoffice/module/board/menu.php";
+include $_SERVER['DOCUMENT_ROOT'] . "/backoffice/module/admin/menu.php";
 
 include $_SERVER['DOCUMENT_ROOT'] . "/module/banner/banner.lib.php";
 if(!in_array("banner_manage",$_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["AUTH"]) && $_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["GRADE"]!="ROOT"):
@@ -58,8 +58,8 @@ function delBanner(idx){
     </style>
 <?php
 $arrCategory = array(
-    "1" => "메인 상단 배너",
-    "2" => "메인 하단 배너",
+    "1" => "PC",
+    "2" => "모바일",
 );
 ?>
 <div class="container">
@@ -68,30 +68,11 @@ $arrCategory = array(
 
 	<div class="inbox">
         <div class="tab_div">
-            <div class='tab_menu <?=$_GET["b_type"] == ""?"on":""?>' onclick="location.href='<?=$_SERVER["PHP_SELF"]?>'">전체</div>
+            <div class='tab_menu <?=$_GET["b_device"] == ""?"on":""?>' onclick="location.href='<?=$_SERVER["PHP_SELF"]?>'">전체</div>
             <?php foreach($arrCategory as $key => $val){?>
-                <div class='tab_menu <?=$_GET["b_type"] == $key?"on":""?>' onclick="location.href='<?=$_SERVER["PHP_SELF"]?>?b_type=<?=$key?>'"><?=$val?></div>
+                <div class='tab_menu <?=$_GET["b_device"] == $key?"on":""?>' onclick="location.href='<?=$_SERVER["PHP_SELF"]?>?b_device=<?=$key?>'"><?=$val?></div>
             <?php } ?>
         </div>
-		<div class="bdr_top">
-			<div class="left">
-				<div class="total">Total : <strong><?=number_format($arrList['total'])?></strong></div>				
-			</div>
-			<form name="frm" method="get" action="<?=$_SERVER["PHP_SELF"]?>">
-			<div class="count">
-				<select name="b_device" onchange="document.frm.submit()">
-                    <option value="">　　디바이스 타입　　　　　　　　　　　　　　▼</option>
-					<option value="1"<?=$b_type=="1"?" selected":""?>>1. 웹 슬라이드 배너 (1920px * 420px)</option>
-					<option value="2"<?=$b_type=="2"?" selected":""?>>2. 모바일 슬라이드 배너 (750px * 1332px)</option>
-                    <option value="3"<?=$b_type=="3"?" selected":""?>>2. 공통</option>
-				</select>
-			</div>	
-			</form>
-            <!--<select name="st" onchange="document.frm.submit()">
-					<option value="1"<?php /*=$_REQUEST['st']=="1"?" selected":""*/?>>정렬역순</option>
-					<option value="2"<?php /*=$_REQUEST['st']=="2"?" selected":""*/?>>등록순</option>
-				</select>-->
-		</div>
 <!-- over_tbl : 테이블을 좌우로 스크롤 할 때 사용합니다. -->
 <!-- mo_break_tbl : 767px 이하에서 테이블 구조를 깰 때 사용합니다. -->
 		<div class="over_tbl mo_break_tbl">

@@ -24,7 +24,6 @@ function checkComment(frm){
 		return false;
 	}
 	<?}else{?>
-
 	alert("<?=$arrLevelInfo[$arrBoardInfo["list"][0]["replylevel"]]?> 이상 댓글입력이 가능합니다.");
 	return false;
 	<?}?>
@@ -122,7 +121,6 @@ function fileDownload(boardid,b_idx,idx,fnm){
 		document.fileFrm.target="fileFrame";
 		document.fileFrm.submit();
 	}
-
 }
 </script>
 <iframe name="fileFrame" style="display:none;"></iframe>
@@ -196,5 +194,4 @@ if($arrBoardArticle["list"][0]['no']=="0"){
 		<a href="<?=$_SERVER["PHP_SELF"]?>?boardid=<?=$arrBoardInfo["list"][0]["boardid"]?>&mode=list&sk=<?=$_GET['sk']?>&sw=<?=$_GET['sw']?>&offset=<?=$_GET['offset']?>&category=<?=$_GET['category']?>" class="btn black">목록으로</a>
 	</div>
 </div>
-
 <?}###################################################### 사용자 페이지 ###################################################### END ?>

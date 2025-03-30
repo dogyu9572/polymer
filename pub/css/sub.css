@@ -1808,7 +1808,7 @@ ul.dots li::before {content: "ㆍ"; position: absolute; left: 0;}
 }
 
 .brd-list .new .title a::after {
-  content:"N";
+  /*content:"N";*/
   position:absolute;
   right:0;
   top:0.3rem;

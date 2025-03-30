@@ -24,7 +24,6 @@ function checkComment(frm){
 		return false;
 	}
 	<?}else{?>
-
 	alert("<?=$arrLevelInfo[$arrBoardInfo["list"][0]["replylevel"]]?> 이상 댓글입력이 가능합니다.");
 	return false;
 	<?}?>
@@ -122,7 +121,6 @@ function fileDownload(boardid,b_idx,idx,fnm){
 		document.fileFrm.target="fileFrame";
 		document.fileFrm.submit();
 	}
-
 }
 function boardDel(val){	
 	if(confirm("삭제 하시겠습니까?")) {
@@ -190,6 +188,5 @@ if($arrBoardArticle["list"][0]['no']=="0"){
 		<?}?>
 	</div>
 </div>
-
 
 <?}###################################################### 사용자 페이지 ###################################################### END ?>

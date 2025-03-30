@@ -1,6 +1,6 @@
 <?PHP
 include $_SERVER['DOCUMENT_ROOT'] . "/backoffice/pub/inc/admin_top.php";
-include $_SERVER['DOCUMENT_ROOT'] . "/backoffice/module/board/menu.php";
+include $_SERVER['DOCUMENT_ROOT'] . "/backoffice/module/admin/menu.php";
 
 include $_SERVER['DOCUMENT_ROOT'] . "/module/banner/banner.lib.php";
 if(!in_array("banner_manage",$_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["AUTH"]) && $_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["GRADE"]!="ROOT"):
@@ -41,9 +41,8 @@ function CheckForm(frm){
 				<th>배너 타입</th>
 				<td><div class="inputs">
 					<select name="b_device">
-                        <option value="1" <?php if ($arrInfo["list"][0]['b_device'] == 1) echo "selected"; ?>>1. PC 슬라이드 배너 (1920px * 420px)</option>
-                        <option value="2" <?php if ($arrInfo["list"][0]['b_device'] == 2) echo "selected"; ?>>2. 모바일 슬라이드 배너 (750px * 1332px)</option>
-                        <option value="3" <?php if ($arrInfo["list"][0]['b_device'] == 3) echo "selected"; ?>>3. 공통</option>
+                        <option value="1" <?php if ($arrInfo["list"][0]['b_device'] == 1) echo "selected"; ?>>PC</option>
+                        <option value="2" <?php if ($arrInfo["list"][0]['b_device'] == 2) echo "selected"; ?>>모바일</option>
 					</select>
 				</div></td>
 			</tr>
