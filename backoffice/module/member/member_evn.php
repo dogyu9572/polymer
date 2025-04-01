@@ -30,7 +30,8 @@ if($_POST['evnMode']=="insert"){
 	//DB연결
 	$dblink = SetConn($_conf_db["main_db"]);
 
-	$RS = editMemberAdmin(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['user_id']));
+	//$RS = editMemberAdmin(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['user_id']));
+	$RS = editMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']));
 
 	if($_POST['talk']=="1" && $_POST['user_level']=="3" ){
 	//	kakaoApiTalk("M01", $_POST['etc_1'], $_POST['mobile'], $_POST['user_id'], "", "", "", "", "");
@@ -40,6 +41,8 @@ if($_POST['evnMode']=="insert"){
 	
 	//DB해제
 	SetDisConn($dblink);
+
+
 
 	if($RS==true){
 		jsGo($_REQUEST['rt_url'],"",  "수정되었습니다.");

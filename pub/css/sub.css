@@ -1788,6 +1788,11 @@ ul.dots li::before {content: "ㆍ"; position: absolute; left: 0;}
   border-bottom:1px solid var(--border-light);
 }
 
+.brd-list .nodata {
+  width: 100%;
+  text-align: center;
+}
+
 .brd-list .title {
   flex-grow:1;
   overflow:hidden;

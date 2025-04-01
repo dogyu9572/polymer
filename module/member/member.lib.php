@@ -185,100 +185,20 @@ function getMemberListOrderJoin($jb, $sw, $sk, $scale, $offset=0, $subQuery=""){
 //회원목록
 function getMemberList($jb, $sw, $sk, $scale, $offset=0, $subQuery="", $orderBy=""){
 	// 테이블 지정
-	$tbl = $GLOBALS["_conf_tbl"]["member"];
+	$tbl = $GLOBALS["_conf_tbl"]["member_poly"];
 
-    $sql = "SELECT * FROM $tbl WHERE 1=1 ";
+	$sql = "SELECT * FROM $tbl WHERE 1=1 $subQuery";
 
-	if($_GET['level'] == "90" || $_GET['user_level'] == "90") {
-		$sql .= " AND user_level = '90' ";
-	} else if($_GET['level'] == "80") {
-		$sql .= " AND user_level = '80' ";
-	} else {
-		$sql .= " AND user_level != '80' AND user_level != '90' ";
-	}
-
-	if($_GET['user_level'] != "") {
-		$sql .= " AND user_level = '$_GET[user_level]' ";
-	}
-	if($jb){
-		$sql .= " AND job = '$jb' ";
+	if($sw == "namek"){
+		$sql .= " AND namek like '%$sk%' ";
+	}else if($sw == "loginid") {
+		$sql .= " AND loginid like '%$sk%' ";
+	}else if($sw == "memberid"){
+			$sql .= " AND memberid like '%$sk%' ";
 	}
 
-	if($sw == "id"){
-		$encoded_sk = base64_encode($sk);
-		$sql .= " AND (user_id like '%$sk%' OR user_id like '%$encoded_sk%') ";
-	}else if($sw == "name"){
-		$encoded_sk = base64_encode($sk);
-		$sql .= " AND (user_name like '%$sk%' OR user_name like '%$encoded_sk%') ";
-	}else if($sw == "mobile"){
-		$encoded_sk = base64_encode($sk);
-		$sql .= " AND (mobile like '%$sk%' OR mobile like '%$encoded_sk%') ";
-	}else if($sw == "all"){
-		$encoded_sk = base64_encode($sk);
-		$sql .= " AND ( (user_name like '%$sk%' OR user_name like '%$encoded_sk%') OR (user_id like '%$sk%' OR user_id like '%$encoded_sk%') OR (company like '%$sk%' OR company like '%$encoded_sk%') )";
-	}else if($sw == "company"){
-		$encoded_sk = base64_encode($sk);
-		$sql .= " AND (company like '%$sk%' OR company like '%$encoded_sk%') ";
-	}else if($sw == "company"){
-		$sql .= " AND company like '%$sk%' ";
-	}else if($sw == "ll2"){
-		$sql .= " AND login_last <= '$sk 23:59:59' AND etc_2!='Y' ";
-	}else if($sw == "ll"){
-		$sql .= " AND login_last <= '$sk 23:59:59' ";
-	}else if($sw == "etc_1"){
-		$sql .= " AND etc_1 like '%$sk%' ";
-	}else if($sw == "etc_10"){
-		$sql .= " AND etc_10 like '%$sk%' ";
-	}else if($sw == "tel"){
-		$sql .= " AND tel like '%$sk%' ";
-	}
+	$sql .= $orderBy;
 
-
-	if($subQuery){
-		$sql .= $subQuery;
-	}
-	if($_REQUEST['s_date']){
-		$sql .= " AND wdate >= '".mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['s_date'])." 00:00:00' ";
-	}
-	if($_REQUEST['e_date']){
-		$sql .= " AND wdate <= '".mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['e_date'])." 23:59:59' ";
-	}
-
-	if($_GET["login_last"] != ""){
-		$sql .= " AND DATE_FORMAT(login_last, '%Y-%m-%d') >= '".mysqli_real_escape_string($GLOBALS['dblink'], $_GET['login_last'])."' ";
-	}
-
-	if($_GET["email_accept"] != ""){
-		$sql .= " AND email_accept = '".mysqli_real_escape_string($GLOBALS['dblink'], $_GET['email_accept'])."' ";
-	}
-	if($_GET["sms_accept"] != ""){
-		$sql .= " AND sms_accept = '".mysqli_real_escape_string($GLOBALS['dblink'], $_GET['sms_accept'])."' ";
-	}
-	if($_GET["kakao_accept"] != ""){
-		$sql .= " AND kakao_accept = '".mysqli_real_escape_string($GLOBALS['dblink'], $_GET['kakao_accept'])."' ";
-	}
-	if($_GET['join_type']){
-		$sql .= " AND join_type='".$_GET['join_type']."' ";
-	}
-	if($_GET['job']){
-		$sql .= " AND job='".$_GET['job']."' ";
-	}
-	if($_GET['etc1']){
-		$sql .= " AND etc_1='".$_GET['etc1']."' ";
-	}
-
-	/*if($_GET['email_accept']){
-		$subQuery .= " AND email_accept='".$_GET['email_accept']."' ";
-	}
-	if($_GET['sms_accept']){
-		$subQuery .= " AND sms_accept='".$_GET['sms_accept']."' ";
-	}*/
-
-	if($orderBy){
-		$sql .= $orderBy;
-	}else{
-		$sql .= " order by idx desc ";
-	}
 
 	// 전체 레코드 수 먼저 조회
 	$rs = mysqli_query($GLOBALS['dblink'], $sql);
@@ -422,7 +342,7 @@ function joinMember(){
 			$rs = mysqli_query($GLOBALS['dblink'], $sql);
 		}
 
-		//파일처리	
+		//파일처리
 		inputMemberFiles("member", $insert_idx, $_FILES, $thumwidth);
 
 		if($total > 0){
@@ -570,7 +490,7 @@ function joinSocialMember(){
 			$rs = mysqli_query($GLOBALS['dblink'], $sql);
 		}
 
-		//파일처리	
+		//파일처리
 		inputMemberFiles("member", $insert_idx, $_FILES, $thumwidth);
 
 		if($total > 0){
@@ -676,7 +596,7 @@ function joinMemberVIP(){
 			$rs = mysqli_query($GLOBALS['dblink'], $sql);
 		}
 
-		//파일처리	
+		//파일처리
 		inputMemberFiles("member", $insert_idx, $_FILES, $thumwidth);
 
 		if($total > 0){
@@ -982,7 +902,7 @@ function joinMemberAdmin(){
 		$insert_idx = mysqli_insert_id($GLOBALS['dblink']);
 		$total = mysqli_affected_rows($GLOBALS['dblink']);
 
-		//파일처리	
+		//파일처리
 		inputMemberFiles("member", $insert_idx, $_FILES, $thumwidth);
 
 		if($total > 0){
@@ -995,61 +915,27 @@ function joinMemberAdmin(){
 
 //회원정보 수정
 function editMember($id){
-	$tbl = $GLOBALS["_conf_tbl"]["member"];
+	$tbl = $GLOBALS["_conf_tbl"]["member_poly"];
 
-	$mobile			= $_POST['mobile'];
-	$phone			= $_POST['mobile'];
-	$user_email		= mysqli_real_escape_string($GLOBALS['dblink'], $_POST['email']);
-
-	$email_accept = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['email_accept'])=="Y"?"Y":"N";
-	if($email_accept=="Y"){
-		$email_accept_date = date("Y-m-d H:i:s");
-	}
-	$sms_accept	= mysqli_real_escape_string($GLOBALS['dblink'], $_POST['sms_accept'])=="Y"?"Y":"N";
-	if($sms_accept=="Y"){
-		$sms_accept_date = date("Y-m-d H:i:s");
-	}
-	$kakao_accept	= mysqli_real_escape_string($GLOBALS['dblink'], $_POST['kakao_accept'])=="Y"?"Y":"N";
-	if($kakao_accept=="Y"){
-		$kakao_accept_date = date("Y-m-d H:i:s");
-	}
-	$sql_add = "";
-	if($_POST['user_pw'] && $_POST['user_pw1'] && $_POST['user_pw'] == $_POST['user_pw1']){
-		$sql_add .= " user_pw = password('".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['user_pw'])."'), ";
-	}
-
-	if($_POST['user_pw'] !=""){
-		$sql_pw = " user_pw = password('".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['user_pw'])."'), ";
-	}
-
-	$sql = "UPDATE ".$tbl." SET
-		$sql_pw
-		$sql_add
-		email = '".$user_email."',
-		email_accept = '$email_accept',
-		email_accept_date = '$email_accept_date',
-		sms_accept = '$sms_accept',
-		sms_accept_date = '$sms_accept_date',
-		kakao_accept = '$kakao_accept',
-		kakao_accept_date = '$kakao_accept_date',
-		user_name = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['user_name'])."',
-		nick_name = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['nick_name'])."',
-		birth = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['birth'])."',
-		phone = '".$phone."',
-		mobile = '".$mobile."',
-		`before` = 'N',
-		address = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['address'])."',
-		address_ext = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['address_ext'])."',
-		etc_1 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['etc_1'])."',
-		gender = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['gender'])."',
-		udate = now()
-		WHERE user_id='$id'
-	";
+	$sql = "UPDATE {$tbl} SET
+        namec = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['namec'])."',
+        namee = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['namee'])."',
+        memcode = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['memcode'])."',
+        mstatus = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['mstatus'])."',
+        gender = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['gender'])."',
+        hphone = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['hphone'])."',
+        cphone = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['cphone'])."',
+        email = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['email'])."',
+        homepage = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['homepage'])."',
+        country = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['country'])."',
+        hzonecode = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['hzonecode'])."',
+        haddress1 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['haddress1'])."',
+        haddress2 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['haddress2'])."',
+        remark = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['remark'])."',
+        updated = NOW()
+        WHERE memberid = '".mysqli_real_escape_string($GLOBALS['dblink'], $id)."'";
 
 	$rs = mysqli_query($GLOBALS['dblink'], $sql);
-
-	//파일처리	
-	inputMemberFiles("member", $_POST['idx'], $_FILES, $thumwidth);
 
 	if($rs){
 		return true;
@@ -1186,7 +1072,7 @@ function editMemberAdmin($id){
 	$rs = mysqli_query($GLOBALS['dblink'], $sql);
 
 
-	//파일처리	
+	//파일처리
 	inputMemberFiles("member", $_POST['idx'], $_FILES, $thumwidth);
 
 	if($rs){
@@ -1487,13 +1373,8 @@ function getUserFindCompanyNumber($etc_1){
 
 //회원정보 가져오기
 function getUserInfo($id, $level=""){
-	$tbl = $GLOBALS["_conf_tbl"]["member"];
-
-	$sql  = "SELECT * FROM ".$tbl." WHERE user_id = '$id' ";
-	if($level != "") {
-		$sql .= " AND user_level !='80' AND user_level !='90' ";
-	}
-	//echo $sql;
+	$tbl = $GLOBALS["_conf_tbl"]["member_poly"];
+	$sql  = "SELECT * FROM ".$tbl." WHERE memberid = '$id' ";
 
 	$rs = mysqli_query($GLOBALS['dblink'], $sql);
 	$total_rs = mysqli_num_rows($rs);
@@ -2088,7 +1969,7 @@ function outMemberAdmin($idx){
 		$deletePerm = true;
 	}
 	if($deletePerm==true){
-		//회원 정보 
+		//회원 정보
 		$sql = "DELETE FROM ".$tbl." WHERE idx in (".$idx.")";
 		$rs = mysqli_query($GLOBALS['dblink'], $sql);
 		$total_rs = mysqli_affected_rows($GLOBALS['dblink']);
@@ -2114,7 +1995,7 @@ function deleteMemberAdmin($idx){
 		$deletePerm = true;
 	}
 	if($deletePerm==true){
-		//회원 정보 
+		//회원 정보
 		$sql = "UPDATE ".$tbl." SET user_level = '90', outdt = now() WHERE idx in (".$idx.")";
 		$rs = mysqli_query($GLOBALS['dblink'], $sql);
 		$total_rs = mysqli_affected_rows($GLOBALS['dblink']);
@@ -2138,7 +2019,7 @@ function deleteMember($id){
 	$tbl_mycoupon = $GLOBALS["_conf_tbl"]["mycoupon"];
 	$tbl_mygiftcard = $GLOBALS["_conf_tbl"]["mygiftcard"];
 
-	//회원 정보 
+	//회원 정보
 	$sql = "UPDATE ".$tbl." SET user_level = '90' , outdt = now() WHERE user_id='".$id."'	";
 	$rs = mysqli_query($GLOBALS['dblink'], $sql);
 	$total_rs = mysqli_affected_rows($GLOBALS['dblink']);
@@ -2177,7 +2058,7 @@ function outMember($id){
 	$tbl_board_qna	= "tbl_board_qna";									//문의내역
 	$tbl_member_add	= "tbl_member_address";								//배송지
 
-	//회원 정보 
+	//회원 정보
 	$sql = "DELETE FROM ".$tbl." WHERE user_id='".$id."'	";
 	$rs = mysqli_query($GLOBALS['dblink'], $sql);
 	$total_rs = mysqli_affected_rows($GLOBALS['dblink']);
