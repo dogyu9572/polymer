@@ -278,7 +278,7 @@ function inNumber(str){
 		</table>
 
 		<div class="btns">
-			<a href="javascript:void(0);" onclick="history.back();" class="btn btn_list">목록보기</a>
+			<a href="/backoffice/module/member/member.php" class="btn btn_list">목록보기</a>
 			<button class="btn btn_save" type="submit">저장</button>
 		</div>
 		</form>

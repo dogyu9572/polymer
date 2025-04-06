@@ -5,23 +5,22 @@ include "./menu.php";
 include $_SERVER['DOCUMENT_ROOT'] . "/module/member/member.lib.php";
 include_once $_SERVER ['DOCUMENT_ROOT'] . "/module/board/board.lib.php";
 if(!in_array("member_manage",$_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["AUTH"]) && $_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["GRADE"]!="ROOT"):
-	jsMsg("권한이 없습니다.");
-	jsHistory("-1");
+    jsMsg("권한이 없습니다.");
+    jsHistory("-1");
 endif;
 
 //DB연결
 $dblink = SetConn($_conf_db["main_db"]);
 
 $arrInfo = getUserInfo(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST["memberid"]));
-$arrLevel = getArticleList($_conf_tbl["member_level"], $scale, $_REQUEST['offset'], "order by level_no desc ");
-$arrCodeCategory = getPolyCategoryOption("회원구분");
+$arrCodeCategory = getPolyCategoryOption("직종");
 
 //SetDisConn($dblink);
 //DB해제
 
 ?>
     <div class="container">
-        <div class="title">회원 기본정보</div>
+        <div class="title">직장 정보</div>
         <div class="tab_div">
             <div class="tab_menu <?=(!isset($_GET['tab']) || $_GET['tab'] == 'basic')?"on":""?>" onclick="location.href='member_info.php?tab=basic&memberid=<?=$_REQUEST["memberid"]?>&listURL=<?=urlencode($_REQUEST['listURL'])?>'">기본 정보</div>
             <div class="tab_menu <?=$_GET['tab'] == 'work'?"on":""?>" onclick="location.href='member_info_work.php?tab=work&memberid=<?=$_REQUEST["memberid"]?>&listURL=<?=urlencode($_REQUEST['listURL'])?>'">직장 정보</div>
@@ -34,17 +33,12 @@ $arrCodeCategory = getPolyCategoryOption("회원구분");
 
             <form name="memberForm" method="post" action="member_evn.php" onsubmit="return checkForm(this)">
                 <input type="hidden" name="evnMode" value="edit">
-                <input type="hidden" name="evnSubMode" value="info">
+                <input type="hidden" name="evnSubMode" value="<?=$_GET['tab']?>">
                 <input type="hidden" name="memberid" value="<?=$arrInfo["list"][0]['memberid']?>">
                 <input type="hidden" name="rt_url" value="<?=$_SERVER['REQUEST_URI']?>">
 
                 <div class="tit">
-                    <div>회원 기본정보 <i>*</i></div>
-                    <div>
-                        <button type="button" class="btn">이 회원으로 로그인</button>
-                        <button type="button" class="btn">우편라벨 인쇄</button>
-                        <button type="button" class="btn">회원정보 변경 내역</button>
-                    </div>
+                    <div>직장 정보 <i>*</i></div>
                 </div>
                 <table>
                     <colgroup>
@@ -54,109 +48,64 @@ $arrCodeCategory = getPolyCategoryOption("회원구분");
                         <col width="*">
                     </colgroup>
                     <tr>
-                        <th>이름(한자)</th>
-                        <td><div class="inputs"><input type="text" class="w4" name="namec" maxlength="50" value="<?=$arrInfo["list"][0]["namec"]?>"></div></td>
-                        <th>영문 이름</th>
-                        <td><div class="inputs"><input type="text" class="w4" name="namee" maxlength="100" value="<?=$arrInfo["list"][0]["namee"]?>"><?php if($arrInfo["list"][0]["email_accept"] == "Y"){?><br/>이메일 수신동의 일자: <?=$arrInfo["list"][0]["email_accept_date"]?><?php } ?></div></td>
+                        <th>소속/부서/직위</th>
+                        <td>
+                            <div class="inputs">
+                                <input type="text" class="w4" name="affiliation" maxlength="50" value="<?=$arrInfo["list"][0]["affiliation"]?>">
+                            </div>
+                        </td>
+                        <th>영문 소속<br><em style="color: red;">(* 기존 데이터 저장용)</em></th>
+                        <td> <div class="inputs"><input type="text" class="w4" name="affiliatione" maxlength="50" value="<?=$arrInfo["list"][0]["affiliatione"]?>"></div></td>
                     </tr>
                     <tr>
-                        <th>회원구분</th>
+                        <th>직종</th>
                         <td>
-                            <select name="memcode">
-                                <option value="">회원구분 선택</option>
-		                        <?php foreach($arrCodeCategory as $code => $name): ?>
-                                    <option value="<?=$code?>" <?=$code==$arrInfo["list"][0]["memcode"]?" selected":""?>><?=$name?></option>
-		                        <?php endforeach; ?>
-                            </select>
-                        </td>
-                        <th>회원상태</th>
-                        <td>
-                            <select name="mstatus">
+                            <select name="jobcode">
                                 <option value="">선택</option>
-			                    <?php foreach($arrMemberGrade as $code => $name): ?>
-                                    <option value="<?=$code?>" <?=$code==$arrInfo["list"][0]["mstatus"]?" selected":""?>><?=$name?></option>
-			                    <?php endforeach; ?>
+                                <?php foreach($arrCodeCategory as $code => $name): ?>
+                                    <option value="<?=$code?>" <?=$code==$arrInfo["list"][0]["jobcode"]?" selected":""?>><?=$name?></option>
+                                <?php endforeach; ?>
                             </select>
                         </td>
+                        <th>소속부서</th>
+                        <td><div class="inputs"><input type="text" class="w4" name="department" maxlength="50" value="<?=$arrInfo["list"][0]["department"]?>"></div></td>
                     </tr>
                     <tr>
-                        <th>ID</th>
-                        <td><div class="inputs"><em><?=$arrInfo["list"][0]["loginid"]?></em></div></td>
-                        <th>비밀번호</th>
-                        <td>
-                            <div class="flex">
-                                <div class="btns" style="justify-content:flex-start; align-items :center; margin:0 !important; padding:0;"><button class="btn btn_save" type="button" onclick="OpenPersonView('edu')" style="margin:0;">임시비밀번호 발송</button></div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>주민번호<br><em style="color: red;">(* 기존 데이터 저장용)</em></th>
-                        <td><div class="inputs"><em><?=$arrInfo["list"][0]["socnum"]?></em></div></td>
-                        <th>생년월일</th>
-                        <td><div class="inputs"><em><?=$arrInfo["list"][0]["birthday"]?></em></div></td>
-                    </tr>
-                    <tr>
-                        <th>성별</th>
+                        <th>직위</th>
                         <td colspan="3">
-                            <div class="inputs">
-                                <label class="radio"><input type="radio" name="gender" value="M" <?=$arrInfo["list"][0]["gender"]=="M"?"checked":""?>><i></i>남자</label>
-                                <label class="radio"><input type="radio" name="gender" value="W" <?=$arrInfo["list"][0]["gender"]!="M"?"checked":""?>><i></i>여자</label>
-                            </div>
+                            <div class="inputs"><input type="text" class="w4" name="pos" maxlength="50" value="<?=$arrInfo["list"][0]["pos"]?>"></div>
                         </td>
                     </tr>
                     <tr>
-                        <th>비밀번호 질문<br><em style="color: red;">(* 기존 데이터 저장용)</em></th>
-                        <td><div class="inputs"><?=$arrInfo["list"][0]["passquestion"]?></div></td>
-                        <th>답변</th>
-                        <td><div class="inputs"><?=$arrInfo["list"][0]["passanswer"]?></div></td>
+                        <th>직장 전화</th>
+                        <td><div class="inputs"><input type="text" class="w4" name="aphone" maxlength="50" value="<?=$arrInfo["list"][0]["aphone"]?>"></div></td>
+                        <th>FAX</em></th>
+                        <td><div class="inputs"><input type="text" class="w4" name="fax" maxlength="50" value="<?=$arrInfo["list"][0]["fax"]?>"></div></td>
                     </tr>
                     <tr>
-                        <th>연락처</th>
-                        <td><div class="inputs"><input type="text" class="w4" name="hphone" maxlength="50" value="<?=$arrInfo["list"][0]["hphone"]?>"></div></td>
-                        <th>휴대전화</th>
-                        <td><div class="inputs"><input type="text" class="w4" name="cphone" maxlength="100" value="<?=$arrInfo["list"][0]["cphone"]?>"><?php if($arrInfo["list"][0]["email_accept"] == "Y"){?><br/>이메일 수신동의 일자: <?=$arrInfo["list"][0]["email_accept_date"]?><?php } ?></div></td>
-                    </tr>
-                    <tr>
-                        <th>이메일</th>
-                        <td><div class="inputs"><input type="text" class="w4" name="email" maxlength="50" value="<?=$arrInfo["list"][0]["email"]?>"></div></td>
-                        <th>홈페이지(기존 데이터만)</th>
-                        <td><div class="inputs"><input type="text" class="w4" name="homepage" maxlength="100" value="<?=$arrInfo["list"][0]["homepage"]?>"><?php if($arrInfo["list"][0]["email_accept"] == "Y"){?><br/>이메일 수신동의 일자: <?=$arrInfo["list"][0]["email_accept_date"]?><?php } ?></div></td>
-                    </tr>
-                    </tr>
-                    <tr>
-                        <th>국가</th>
-                        <td colspan="3">
-                            <div class="inputs">
-                                <select name="country">
-                                    <option value="">선택</option>
-		                            <?php foreach($arrCountry as $code => $name): ?>
-                                        <option value="<?=$code?>" <?=$code==$arrInfo["list"][0]["country"]?" selected":""?>><?=$name?></option>
-		                            <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>자택주소</th>
+                        <th>직장주소</th>
                         <td colspan="3">
                             <div class="inputs">
                                 <div style="display: flex; gap: 5px; width: 100%;">
-                                    <input type="text" name="hzonecode" id="hzonecode" value="<?=$arrInfo["list"][0]['hzonecode']?>" class="text w1" >
-                                    <button type="button" onclick="execDaumPostcode('hzonecode','haddress1','haddress2')" class="btn">우편번호찾기</button>
+                                    <input type="text" name="azonecode" id="azonecode" value="<?=$arrInfo["list"][0]['azonecode']?>" class="text w1" >
+                                    <button type="button" onclick="execDaumPostcode('azonecode','aaddress1','aaddress2')" class="btn">우편번호찾기</button>
                                 </div>
                                 <div style="width: 100%;">
-                                    <input type="text" name="haddress1" id="haddress1" value="<?=$arrInfo["list"][0]['haddress1']?>" class="text w4" >
+                                    <input type="text" name="aaddress1" id="aaddress1" value="<?=$arrInfo["list"][0]['aaddress1']?>" class="text w4" >
                                 </div>
                                 <div style="width: 100%;">
-                                    <input type="text" name="haddress2" id="haddress2" value="<?=$arrInfo["list"][0]['haddress2']?>" class="text w4">
+                                    <input type="text" name="aaddress2" id="aaddress2" value="<?=$arrInfo["list"][0]['aaddress2']?>" class="text w4">
                                 </div>
                             </div>
                         </td>
                     </tr>
                     <tr>
-                        <th>비고</th>
+                        <th>우편물 운송처</th>
                         <td colspan="3">
-                            <textarea id="remark" name="remark" cols="100" rows="5"><?=($arrInfo["list"][0]['remark'])?></textarea>
+                            <div class="inputs">
+                                <label class="radio"><input type="radio" name="postal" value="A" <?=$arrInfo["list"][0]["postal"]=="A"?"checked":""?>><i></i>직장 주소</label>
+                                <label class="radio"><input type="radio" name="postal" value="H" <?=$arrInfo["list"][0]["postal"]=="H"?"checked":""?>><i></i>자택 주소</label>
+                            </div>
                         </td>
                     </tr>
                 </table>

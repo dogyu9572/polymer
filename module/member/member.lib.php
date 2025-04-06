@@ -913,8 +913,123 @@ function joinMemberAdmin(){
 	}
 }
 
+function getAccountTransaction($id) {
+	// 트랜잭션 테이블 지정
+	$tbl = $GLOBALS["_conf_tbl"]["account_transaction_poly"];
+
+	// ID 보안 처리
+	$id = intval($id);
+
+	// SQL 쿼리 작성
+	$sql = "SELECT * FROM $tbl WHERE t_mid = $id ORDER BY t_inserted DESC";
+
+	// 쿼리 실행
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+	$total_rs = mysqli_num_rows($rs);
+
+	// 결과 배열 초기화
+	$list = array();
+
+	if ($total_rs > 0) {
+		$list['total'] = $total_rs;
+		$list['list'] = mysqli_fetch_all($rs, MYSQLI_ASSOC);
+	} else {
+		$list['total'] = 0;
+	}
+
+	return $list;
+}
+
+function getAccountPaid($id) {
+	// 납부 내역 테이블 지정
+	$tbl = $GLOBALS["_conf_tbl"]["account_paid_poly"];
+
+	// ID 보안 처리
+	$id = intval($id);
+
+	// SQL 쿼리 작성
+	$sql = "SELECT * FROM $tbl WHERE p_mid = $id ORDER BY p_id DESC";
+
+	// 쿼리 실행
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+	$total_rs = mysqli_num_rows($rs);
+
+	// 결과 배열 초기화
+	$list = array();
+
+	if ($total_rs > 0) {
+		$list['total'] = $total_rs;
+		$list['list'] = mysqli_fetch_all($rs, MYSQLI_ASSOC);
+	} else {
+		$list['total'] = 0;
+	}
+
+	return $list;
+}
+
+function insertAcareerMember($id) {
+	$tbl = $GLOBALS["_conf_tbl"]["member_acareer_poly"];
+
+	$sql = "INSERT INTO {$tbl} SET
+        memberid = '".mysqli_real_escape_string($GLOBALS['dblink'], $id)."',
+        degree = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['degree'])."',
+        dyear = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['dyear'])."',
+        univ = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['univ'])."',
+        department = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['department'])."',
+        major = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['major'])."'";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+	if($rs){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function insertScareerMember($id) {
+	$tbl = $GLOBALS["_conf_tbl"]["member_scareer_poly"];
+
+	$sql = "INSERT INTO {$tbl} SET
+            memberid = '".mysqli_real_escape_string($GLOBALS['dblink'], $id)."',
+            fyear = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['fyear'])."',
+            tyear = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['tyear'])."',
+            affiliation = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['affiliation'])."',
+            description = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['description'])."'";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+	if($rs){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function insertExecutiveMember($id)
+{
+	$tbl = $GLOBALS["_conf_tbl"]["member_officer_poly"];
+
+	$sql = "INSERT INTO {$tbl} SET
+            o_mid = '".mysqli_real_escape_string($GLOBALS['dblink'], $id)."',
+            o_group = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_group'])."',
+            o_sub = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_sub'])."',
+            o_role = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_role'])."',
+            o_biography = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_biography'])."',
+            o_dutyfrom = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_dutyfrom'])."',
+            o_dutyto = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_dutyto'])."'";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+	if($rs){
+		return true;
+	} else {
+		return false;
+	}
+}
+
 //회원정보 수정
-function editMember($id){
+function editInfoMember($id){
 	$tbl = $GLOBALS["_conf_tbl"]["member_poly"];
 
 	$sql = "UPDATE {$tbl} SET
@@ -940,6 +1055,233 @@ function editMember($id){
 	if($rs){
 		return true;
 	}else{
+		return false;
+	}
+}
+
+function editWorkMember($id){
+	$tbl = $GLOBALS["_conf_tbl"]["member_poly"];
+
+	$sql = "UPDATE {$tbl} SET
+        affiliation = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['affiliation'])."',
+        affiliatione = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['affiliatione'])."',
+        jobcode = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['jobcode'])."',
+        department = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['department'])."',
+        pos = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['pos'])."',
+        aphone = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['aphone'])."',
+        fax = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['fax'])."',
+        azonecode = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['azonecode'])."',
+        aaddress1 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['aaddress1'])."',
+        aaddress2 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['aaddress2'])."',
+        postal = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['postal'])."',
+        updated = NOW()
+        WHERE memberid = '".mysqli_real_escape_string($GLOBALS['dblink'], $id)."'";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+	if($rs){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+function editAdditionalMember($id) {
+	$tbl = $GLOBALS["_conf_tbl"]["member_poly"];
+
+	$divcodeStr = !empty($_POST['divcode']) ? implode("|", $_POST['divcode']) : '';
+
+	$sql = "UPDATE {$tbl} SET
+	   divcode = '".mysqli_real_escape_string($GLOBALS['dblink'], $divcodeStr)."',
+        brncode = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['brncode'])."',
+        inserted = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['inserted'])."',
+        updated = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['updated'])."',
+        subscription = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['subscription'])."',
+        contactable = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['contactable'])."',
+         formno = '".mysqli_real_escape_string($GLOBALS['dblink'], empty($_POST['formno']) ? '0' : $_POST['formno'])."',
+        custom5 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['custom5'])."',
+        custom4 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['custom4'])."',        
+        infolevel = '".mysqli_real_escape_string($GLOBALS['dblink'], empty($_POST['infolevel']) ? '0' : $_POST['infolevel'])."',
+        custom1 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['custom1'])."',
+        custom2 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['custom2'])."'
+        WHERE memberid = '".mysqli_real_escape_string($GLOBALS['dblink'], $id)."'";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+	if($rs) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+
+function editAcareerMember($id) {
+	$tbl = $GLOBALS["_conf_tbl"]["member_acareer_poly"];
+
+	// 기존 데이터를 찾기 위한 조건
+	$old_degree = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['old_degree']);
+	$old_dyear = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['old_dyear']);
+	$old_univ = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['old_univ']);
+	$old_department = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['old_department']);
+	$old_major = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['old_major']);
+
+	// 수정할 데이터
+	$new_degree = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['degree']);
+	$new_dyear = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['dyear']);
+	$new_univ = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['univ']);
+	$new_department = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['department']);
+	$new_major = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['major']);
+
+	// 기존 데이터를 찾고 수정하는 쿼리
+	$sql = "UPDATE {$tbl} SET
+                degree = '{$new_degree}',
+                dyear = '{$new_dyear}',
+                univ = '{$new_univ}',
+                department = '{$new_department}',
+                major = '{$new_major}'
+            WHERE memberid = '{$id}'
+                AND degree = '{$old_degree}'
+                AND dyear = '{$old_dyear}'
+                AND univ = '{$old_univ}'
+                AND department = '{$old_department}'
+                AND major = '{$old_major}'";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+	if($rs){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function editExecutiveMember($id, $o_id){
+	$tbl_officer = $GLOBALS["_conf_tbl"]["member_officer_poly"];
+
+	$sql = "UPDATE {$tbl_officer} SET
+            o_group = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_group'])."',
+            o_sub = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_sub'])."',
+            o_role = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_role'])."',
+            o_biography = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_biography'])."',
+            o_dutyfrom = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_dutyfrom'])."',
+            o_dutyto = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_dutyto'])."'
+            WHERE o_mid = '".mysqli_real_escape_string($GLOBALS['dblink'], $id)."'
+            AND o_id = '".mysqli_real_escape_string($GLOBALS['dblink'], $o_id)."'";
+//echo "echo:"; print_r($sql); echo "<br>" ;
+//exit;
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+	if($rs){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function editScareerMember($id) {
+	$tbl = $GLOBALS["_conf_tbl"]["member_scareer_poly"];
+
+	// 기존 데이터를 찾기 위한 조건
+	$old_fyear = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['old_fyear']);
+	$old_tyear = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['old_tyear']);
+	$old_affiliation = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['old_affiliation']);
+	$old_description = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['old_description']);
+
+	// 수정할 데이터
+	$new_fyear = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['fyear']);
+	$new_tyear = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['tyear']);
+	$new_affiliation = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['affiliation']);
+	$new_description = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['description']);
+
+	// 기존 데이터를 찾고 수정하는 쿼리
+	$sql = "UPDATE {$tbl} SET
+                fyear = '{$new_fyear}',
+                tyear = '{$new_tyear}',
+                affiliation = '{$new_affiliation}',
+                description = '{$new_description}'
+            WHERE memberid = '{$id}'
+                AND fyear = '{$old_fyear}'
+                AND tyear = '{$old_tyear}'
+                AND affiliation = '{$old_affiliation}'
+                AND description = '{$old_description}'";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+	if($rs){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+
+function deleteAcareerMember($id) {
+	$tbl = $GLOBALS["_conf_tbl"]["member_acareer_poly"];
+
+	// 기존 데이터를 찾기 위한 조건
+	$degree = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['degree']);
+	$dyear = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['dyear']);
+	$univ = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['univ']);
+	$department = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['department']);
+	$major = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['major']);
+
+	// 기존 데이터를 찾고 삭제하는 쿼리
+	$sql = "DELETE FROM {$tbl}
+            WHERE memberid = '{$id}'
+                AND degree = '{$degree}'
+                AND dyear = '{$dyear}'
+                AND univ = '{$univ}'
+                AND department = '{$department}'
+                AND major = '{$major}'";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+	if($rs){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function deleteScareerMember($id) {
+	$tbl = $GLOBALS["_conf_tbl"]["member_scareer_poly"];
+
+	// 기존 데이터를 찾기 위한 조건
+	$fyear = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['fyear']);
+	$tyear = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['tyear']);
+	$affiliation = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['affiliation']);
+	$description = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['description']);
+
+	// 기존 데이터를 찾고 삭제하는 쿼리
+	$sql = "DELETE FROM {$tbl}
+            WHERE memberid = '{$id}'
+                AND fyear = '{$fyear}'
+                AND tyear = '{$tyear}'
+                AND affiliation = '{$affiliation}'
+                AND description = '{$description}'";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+	if($rs){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function deleteExecutiveMember($o_mid, $o_id){
+	$tbl_officer = $GLOBALS["_conf_tbl"]["member_officer_poly"];
+
+	$sql = "DELETE FROM {$tbl_officer}
+            WHERE o_mid = '{$o_mid}'  
+                AND o_id = '{$o_id}'";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+	if($rs){
+		return true;
+	} else {
 		return false;
 	}
 }
@@ -1370,6 +1712,55 @@ function getUserFindCompanyNumber($etc_1){
 	return $list;
 }
 
+function getPolyMemberOfficer($id, $subQuery = ""){
+	$tbl_officer = $GLOBALS["_conf_tbl"]["member_officer_poly"];
+
+	$id_safe = mysqli_real_escape_string($GLOBALS['dblink'], $id);
+	$sql = "SELECT o.* 
+            FROM {$tbl_officer} o
+            WHERE o.o_mid = '{$id_safe}' 
+            {$subQuery}
+            ORDER BY o.o_id DESC";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+	$total_rs = mysqli_num_rows($rs);
+
+	// 결과 배열 초기화
+	$list = array('total' => $total_rs);
+
+	if($total_rs > 0){
+		for($i=0; $i < $total_rs; $i++){
+			$list['list'][$i] = mysqli_fetch_assoc($rs);
+		}
+	} else {
+		$list['list'] = array();
+	}
+
+	return $list;
+}
+
+function infoPolyMemberOfficer($id, $o_id){
+	$tbl_officer = $GLOBALS["_conf_tbl"]["member_officer_poly"];
+
+	$id_safe = mysqli_real_escape_string($GLOBALS['dblink'], $id);
+	$o_id_safe = mysqli_real_escape_string($GLOBALS['dblink'], $o_id);
+
+	$sql = "SELECT * FROM {$tbl_officer} 
+            WHERE o_mid = '{$id_safe}' 
+            AND o_id = '{$o_id_safe}'";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+	$total_rs = mysqli_num_rows($rs);
+
+	if($total_rs > 0){
+		$list['total'] = $total_rs;
+		$list['list'] = mysqli_fetch_assoc($rs);
+	} else {
+		$list['total'] = 0;
+	}
+
+	return $list;
+}
 
 //회원정보 가져오기
 function getUserInfo($id, $level=""){
@@ -1387,7 +1778,6 @@ function getUserInfo($id, $level=""){
 	}else{
 			$list['total'] = 0;
 	}
-
 
 	$idx = $list['list'][0]['idx'];
 	//파일정보 가져오기
