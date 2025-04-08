@@ -16,7 +16,8 @@ include $_SERVER['DOCUMENT_ROOT'] . "/backoffice/auth/auth.php";
 
 <body>
 <?
-include $_SERVER['DOCUMENT_ROOT'] . "/module/member/member.lib.php";
+include_once $_SERVER ['DOCUMENT_ROOT'] . "/module/member/member.lib.php";
+include_once $_SERVER ['DOCUMENT_ROOT'] . "/module/member/account.lib.php";
 if(!in_array("member_manage",$_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["AUTH"]) && $_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["GRADE"]!="ROOT"):
 	jsMsg("권한이 없습니다.");
 	jsHistory("-1");

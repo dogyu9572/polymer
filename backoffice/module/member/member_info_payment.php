@@ -2,7 +2,8 @@
 include $_SERVER['DOCUMENT_ROOT'] . "/backoffice/pub/inc/admin_top.php";
 include "./menu.php";
 
-include $_SERVER['DOCUMENT_ROOT'] . "/module/member/member.lib.php";
+include_once $_SERVER ['DOCUMENT_ROOT'] . "/module/member/member.lib.php";
+include_once $_SERVER ['DOCUMENT_ROOT'] . "/module/member/account.lib.php";
 include_once $_SERVER ['DOCUMENT_ROOT'] . "/module/board/board.lib.php";
 if(!in_array("member_manage",$_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["AUTH"]) && $_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["GRADE"]!="ROOT"):
     jsMsg("권한이 없습니다.");
@@ -86,8 +87,8 @@ $arrCodeCategory = getPolyCategoryOption("직종");
                                                         <a href="javascript:void(0);" onclick="" class="btn perf">영수증</a></td>
                                                 <td class="mono_btm"><i class="mo_vw">관리</i>
                                                     <div class="btns">
-                                                        <a href="javascript:void(0);" onclick="OpenApplyView('transaction', 'edit', <?=$arrInfo["list"][0]['memberid']?>)" class="btn perf">수정</a>
-                                                        <button type="button" class="btn del" style="line-height:32px;" onclick="delPaymentMember('<?=$arrInfo["list"][0]['memberid']?>','transaction',);">삭제</button>
+                                                        <a href="javascript:void(0);" onclick="OpenApplyView('transaction', 'edit', <?=$arrInfo["list"][0]['memberid']?>, '<?=$arrAccountTransaction['list'][$i]['t_orderno']?>')" class="btn perf">수정</a>
+                                                        <button type="button" class="btn del" style="line-height:32px;" onclick="delPaymentMember('paid','<?=$arrInfo["list"][0]['memberid']?>', '<?=$arrAccountTransaction["list"][$i]['t_orderno']?>');">삭제</button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -112,7 +113,7 @@ $arrCodeCategory = getPolyCategoryOption("직종");
                     <tr>
                         <td>
                             <div class="btns" style="height:30px;margin-top:0;margin-bottom:10px; justify-content: left">
-                                <a href="javascript:void(0);" class="btn" onclick="OpenApplyView('paid', 'insert',<?=$arrInfo["list"][0]['memberid']?>">납부내역 추가</a>
+                                <a href="javascript:void(0);" class="btn" onclick="OpenApplyView('paid', 'insert',<?=$arrInfo["list"][0]['memberid']?>)">납부내역 추가</a>
                             </div>
                             <div class="bdr_list tac" style="width:100%;board:1px">
                                 <table>
@@ -144,8 +145,8 @@ $arrCodeCategory = getPolyCategoryOption("직종");
                                                 <td><?=$arrAccountPaid['list'][$i]['p_validfrom']?> ~ <?=$arrAccountPaid['list'][$i]['p_validto']?> </td>
                                                 <td class="mono_btm"><i class="mo_vw">관리</i>
                                                     <div class="btns">
-                                                        <a href="javascript:void(0);" onclick="OpenApplyView('paid', 'edit', <?=$arrInfo["list"][0]['memberid']?>)" class="btn perf">수정</a>
-                                                        <button type="button" class="btn del" style="line-height:32px;" onclick="delPaymentMember('<?=$arrInfo["list"][0]['memberid']?>','paid',);">삭제</button>
+                                                        <a href="javascript:void(0);" onclick="OpenApplyView('paid', 'edit', <?=$arrInfo["list"][0]['memberid']?>, <?=$arrAccountPaid["list"][$i]['p_id']?> )" class="btn perf">수정</a>
+                                                        <button type="button" class="btn del" style="line-height:32px;" onclick="delPaymentMember('paid','<?=$arrInfo["list"][0]['memberid']?>', <?=$arrAccountPaid["list"][$i]['p_id']?>);">삭제</button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -183,28 +184,21 @@ $arrCodeCategory = getPolyCategoryOption("직종");
         .fancybox__slide {padding-bottom:20px;}
     </style>
     <script type="text/javascript">
-        function delCareerMember(memberid, career, params = {}) {
-            let confirmMessage = career === 'acareer' ? "선택한 학력 정보를 삭제하시겠습니까?" : "선택한 경력 정보를 삭제하시겠습니까?";
+        function delPaymentMember(type, memberid, id) {
+            let confirmMessage = type === 'paid' ? "선택한 납부내역을 삭제하시겠습니까?" : "선택한 결제내역을 삭제하시겠습니까?";
 
             if (confirm(confirmMessage)) {
                 let data = {
                     evnMode: "delete_pop",
-                    evnPopMode: career,
+                    evnPopMode: type,
                     memberid: memberid
                 };
 
-                // career 유형에 따라 다른 파라미터 추가
-                if (career === 'acareer' && params) {
-                    data.degree = params.degree || '';
-                    data.dyear = params.dyear || '';
-                    data.univ = params.univ || '';
-                    data.department = params.department || '';
-                    data.major = params.major || '';
-                } else if (career === 'scareer' && params) {
-                    data.fyear = params.fyear || '';
-                    data.tyear = params.tyear || '';
-                    data.affiliation = params.affiliation || '';
-                    data.description = params.description || '';
+                // 납부내역인 경우 p_id 추가, 결제내역인 경우 t_id 추가
+                if (type === 'paid') {
+                    data.p_id = id;
+                } else if (type === 'transaction') {
+                    data.t_orderno = id;
                 }
 
                 $.ajax({
@@ -213,12 +207,12 @@ $arrCodeCategory = getPolyCategoryOption("직종");
                     data: data,
                     success: function(response) {
                         if (response.trim() === "success") {
-                            let successMessage = career === 'acareer' ? "학력 정보가 삭제되었습니다." : "경력 정보가 삭제되었습니다.";
+                            let successMessage = type === 'paid' ? "납부내역이 삭제되었습니다." : "결제내역이 삭제되었습니다.";
                             alert(successMessage);
                             window.location.reload();
                         } else {
                             console.log(response);
-                            alert("삭제 실패하였습니다. 다시 시도해주세요.");
+                            alert("삭제에 실패했습니다. 다시 시도해주세요.");
                         }
                     },
                     error: function() {
@@ -228,15 +222,21 @@ $arrCodeCategory = getPolyCategoryOption("직종");
             }
         }
 
-        function OpenApplyView(fname, mode, memberid) {
+        function OpenApplyView(fname, mode, memberid, id) {
             var requestUrl = "";
 
             if (fname === "transaction") {
-                requestUrl = "/backoffice/module/member/pop_transaction.php?memberid=" + memberid;
+                    requestUrl = "/backoffice/module/member/pop_transaction.php?memberid=" + memberid;
                 requestUrl += "&mode=" + mode;
+                if (mode === "edit" && id) {
+                    requestUrl += "&t_orderno=" + id;
+                }
             } else if (fname === "paid") {
                 requestUrl = "/backoffice/module/member/pop_paid.php?memberid=" + memberid;
                 requestUrl += "&mode=" + mode;
+                if (mode === "edit" && id) {
+                    requestUrl += "&p_id=" + id;
+                }
             }
 
             Fancybox.show([

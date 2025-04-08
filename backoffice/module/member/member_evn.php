@@ -2,7 +2,8 @@
 session_start();
 include $_SERVER['DOCUMENT_ROOT'] . "/common/conf/config.inc.php";
 include $_SERVER['DOCUMENT_ROOT'] . "/backoffice/auth/auth.php";
-include $_SERVER['DOCUMENT_ROOT'] . "/module/member/member.lib.php";
+include_once $_SERVER ['DOCUMENT_ROOT'] . "/module/member/member.lib.php";
+include_once $_SERVER ['DOCUMENT_ROOT'] . "/module/member/account.lib.php";
 include $_SERVER['DOCUMENT_ROOT'] . "/module/mail/mail.lib.php";
 
 if(!in_array("member_manage",$_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["AUTH"]) && $_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["GRADE"]!="ROOT"):
@@ -99,6 +100,10 @@ if($_POST['evnMode']=="insert"){
         $RS = insertScareerMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']));
     } else if($_POST['evnPopMode'] == "executive"){
         $RS = insertExecutiveMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']));
+    }else if($_POST['evnPopMode'] == "paid"){
+	    $RS = insertPaidMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']));
+    }else if($_POST['evnPopMode'] == "transaction"){
+	    $RS = insertTransactionMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']));
     }
 
     //DB해제
@@ -126,6 +131,10 @@ if($_POST['evnMode']=="insert"){
         $RS = editScareerMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']));
     }else if($_POST['evnPopMode'] == "executive"){
         $RS = editExecutiveMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']),mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['o_id']));
+    }else if($_POST['evnPopMode'] == "paid"){
+		$RS = editPaidMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']));
+	}else if($_POST['evnPopMode'] == "transaction"){
+	    $RS = editTransactionMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']),mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['t_orderno']));
     }
 
     //DB해제
@@ -155,6 +164,10 @@ if($_POST['evnMode']=="insert"){
         $RS = deleteScareerMember($id);
     }else if($_POST['evnPopMode'] == "executive"){
         $RS = deleteExecutiveMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']),mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['o_id']));
+    }else if($_POST['evnPopMode'] == "paid"){
+		$RS = deletePaidMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']),mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['p_id']));
+	}else if($_POST['evnPopMode'] == "transaction"){
+	    $RS = deleteTransactionMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']),mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['t_orderno']));
     }
 
     // DB 연결 해제

@@ -397,11 +397,13 @@ $pagescale = 10;
 /*********************************************************************/
 // 고분자학회 추가 변수 설정
 /*********************************************************************/
+//관리자 권한
 $arrAdminGrade = array(
 	"ADMIN" => "총괄 관리자",
 	"ROOT" => "일반 관리자"
 );
 
+//관리자 등급
 $arrMemberGrade = array(
 	"1" => "정상회원",
 	"0" => "권한정지",
@@ -409,6 +411,36 @@ $arrMemberGrade = array(
 	"-2" => "보류회원",
 );
 
+//결제방법
+$arrPayType = array(
+	"A_PAY_METHOD_CASH" => "현금",
+	"A_PAY_METHOD_BANKONLINE" => "온라인입금",
+	"A_PAY_METHOD_GIRO" => "지로",
+	"A_PAY_METHOD_DIRECTCARD" => "신용카드직접결제",
+	"A_PAY_METHOD_ADMINDIRECT" => "직접입력"
+);
+
+$arrCardType = array(
+	"BC카드" => "BC카드",
+	"LG카드" => "LG카드",
+	"삼성카드" => "삼성카드",
+	"현대카드" => "현대카드",
+	"국민카드" => "국민카드",
+	"외환카드" => "외환카드",
+	"신한카드" => "신한카드",
+	"씨티카드" => "씨티카드",
+	"조흥카드" => "조흥카드",
+	"롯데카드" => "롯데카드",
+	"우리카드" => "우리카드",
+	"광주은행" => "광주은행",
+	"VISA" => "VISA",
+	"MASTER" => "MASTER",
+	"AMEX" => "AMEX",
+	"JCB" => "JCB",
+	"기타카드" => "기타카드"
+);
+
+//국가 코드
 $arrCountry = array(
 	"Korea" => "Korea, Republic of",
 	"Afghanistan" => "Afghanistan",

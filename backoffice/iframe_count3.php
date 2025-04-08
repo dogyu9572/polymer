@@ -1,7 +1,8 @@
 <?
 session_start();
 include $_SERVER['DOCUMENT_ROOT'] . "/common/conf/config.inc.php";
-include $_SERVER['DOCUMENT_ROOT'] . "/module/member/member.lib.php";
+include_once $_SERVER ['DOCUMENT_ROOT'] . "/module/member/member.lib.php";
+include_once $_SERVER ['DOCUMENT_ROOT'] . "/module/member/account.lib.php";
 
 //DB연결
 $dblink = SetConn($_conf_db["main_db"]);

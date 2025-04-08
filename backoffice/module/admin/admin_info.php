@@ -7,7 +7,8 @@ if(!in_array("admin_manage",$_SESSION[$_SITE["DOMAIN"]]["ADMIN"]["AUTH"]) && $_S
 	jsHistory("-1");
 endif;
 
-include $_SERVER['DOCUMENT_ROOT'] . "/module/member/member.lib.php";
+include_once $_SERVER ['DOCUMENT_ROOT'] . "/module/member/member.lib.php";
+include_once $_SERVER ['DOCUMENT_ROOT'] . "/module/member/account.lib.php";
 
 //DB연결
 $dblink = SetConn($_conf_db["main_db"]);
