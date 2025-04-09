@@ -1,6 +1,6 @@
 <?PHP
 include $_SERVER['DOCUMENT_ROOT'] . "/backoffice/pub/inc/admin_top.php";
-include "./menu.php";
+include $_SERVER['DOCUMENT_ROOT'] . "/backoffice/module/admin/menu.php";
 
 include_once $_SERVER ['DOCUMENT_ROOT'] . "/module/member/member.lib.php";
 include_once $_SERVER ['DOCUMENT_ROOT'] . "/module/member/account.lib.php";
@@ -88,7 +88,7 @@ $arrCodeCategory = getPolyCategoryOption("직종");
                                                 <td class="mono_btm"><i class="mo_vw">관리</i>
                                                     <div class="btns">
                                                         <a href="javascript:void(0);" onclick="OpenApplyView('transaction', 'edit', <?=$arrInfo["list"][0]['memberid']?>, '<?=$arrAccountTransaction['list'][$i]['t_orderno']?>')" class="btn perf">수정</a>
-                                                        <button type="button" class="btn del" style="line-height:32px;" onclick="delPaymentMember('paid','<?=$arrInfo["list"][0]['memberid']?>', '<?=$arrAccountTransaction["list"][$i]['t_orderno']?>');">삭제</button>
+                                                        <button type="button" class="btn del" style="line-height:32px;" onclick="delPaymentMember('transaction','<?=$arrInfo["list"][0]['memberid']?>', '<?=$arrAccountTransaction["list"][$i]['t_orderno']?>');">삭제</button>
                                                     </div>
                                                 </td>
                                             </tr>

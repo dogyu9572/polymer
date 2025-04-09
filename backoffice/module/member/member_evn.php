@@ -39,8 +39,9 @@ if($_POST['evnMode']=="insert"){
         $RS = editWorkMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']));
     }else if($_POST['evnSubMode'] == "additional"){
         $RS = editAdditionalMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']));
+    }else if($_POST['evnSubMode'] == "non_member"){
+        $RS = editNonMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']));
     }
-
 	//DB해제
 	SetDisConn($dblink);
 
@@ -56,13 +57,13 @@ if($_POST['evnMode']=="insert"){
 	//DB연결
 	$dblink = SetConn($_conf_db["main_db"]);
 
-	$RS2 = deleteMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['user_id']));		// 탙퇴회원처리
+	$RS2 = outMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']));		// 탙퇴회원처리
 	//$RS2 = outMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['user_id']));		// 삭제처리
 	if($RS2 == true){
 		if($_POST['returnURL']){
-			jsGo($_POST['returnURL'],"",$_REQUEST['user_id'] . "님 정상적으로 탈퇴처리되었습니다.");
+			jsGo($_POST['returnURL'],"", "정상적으로 삭제되었습니다.");
 		}else{
-			jsGo("member.php","",$_REQUEST['user_id'] . "님 정상적으로 탈퇴처리되었습니다.");
+			jsGo("member.php","","정상적으로 삭제처리되었습니다.");
 		}
 	}else{
 		jsGo("member.php","","삭제중 오류가 발생하였습니다.");
@@ -169,7 +170,6 @@ if($_POST['evnMode']=="insert"){
 	}else if($_POST['evnPopMode'] == "transaction"){
 	    $RS = deleteTransactionMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']),mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['t_orderno']));
     }
-
     // DB 연결 해제
     SetDisConn($dblink);
 

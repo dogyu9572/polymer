@@ -15,6 +15,7 @@ endif;
 $dblink = SetConn ( $_conf_db ["main_db"] );
 
 $arrGroupCategory = getPolyCategoryOption("학회임원");
+$arrInfo = getUserInfo(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST["memberid"]));
 $arrMemberOfficerInfo = infoOfficerMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST["memberid"]),$_REQUEST["o_id"]);
 
 // DB해제
@@ -32,6 +33,8 @@ SetDisConn ( $dblink );
                 <?php endif; ?>
                 <input type="hidden" name="evnPopMode" value="executive">
                 <input type="hidden" name="memberid" value="<?php echo isset($_GET['memberid']) ? $_GET['memberid'] : ''; ?>">
+                <input type="hidden" name="o_name" value="<?=$arrInfo["list"][0]['namek']?>">
+                <input type="hidden" name="o_affiliation" value="<?=$arrInfo["list"][0]['affiliation']?>">
                 <input type="hidden" name="rt_url" value="<?php echo $_SERVER['REQUEST_URI']?>">
                 <table>
                     <colgroup>

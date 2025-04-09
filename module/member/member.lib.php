@@ -195,10 +195,22 @@ function getMemberList($jb, $sw, $sk, $scale, $offset=0, $subQuery="", $orderBy=
 		$sql .= " AND loginid like '%$sk%' ";
 	}else if($sw == "memberid"){
 			$sql .= " AND memberid like '%$sk%' ";
+	}else if($sw == "email"){
+		$sql .= " AND email like '%$sk%' ";
+	}else if($sw == "affiliation"){
+		$sql .= " AND affiliation like '%$sk%' ";
+	}else if($sw == "cphone") {
+		$sql .= " AND cphone like '%$sk%' ";
+	}
+
+	if($_REQUEST['s_date']){
+		$sql .= " AND inserted >= '".mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['s_date'])." 00:00:00' ";
+	}
+	if($_REQUEST['e_date']){
+		$sql .= " AND inserted <= '".mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['e_date'])." 23:59:59' ";
 	}
 
 	$sql .= $orderBy;
-
 
 	// 전체 레코드 수 먼저 조회
 	$rs = mysqli_query($GLOBALS['dblink'], $sql);
@@ -239,6 +251,115 @@ function getMemberList($jb, $sw, $sk, $scale, $offset=0, $subQuery="", $orderBy=
 
 	return $list;
 }
+
+
+//회원정보 수정
+function editInfoMember($id){
+	$tbl = $GLOBALS["_conf_tbl"]["member_poly"];
+
+	$sql = "UPDATE {$tbl} SET
+        namec = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['namec'])."',
+        namee = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['namee'])."',
+        memcode = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['memcode'])."',
+        mstatus = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['mstatus'])."',
+        gender = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['gender'])."',
+        hphone = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['hphone'])."',
+        cphone = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['cphone'])."',
+        email = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['email'])."',
+        homepage = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['homepage'])."',
+        country = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['country'])."',
+        hzonecode = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['hzonecode'])."',
+        haddress1 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['haddress1'])."',
+        haddress2 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['haddress2'])."',
+        remark = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['remark'])."',
+        updated = NOW()
+        WHERE memberid = '".mysqli_real_escape_string($GLOBALS['dblink'], $id)."'";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+	if($rs){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+function editNonMember($id){
+	$tbl = $GLOBALS["_conf_tbl"]["member_poly"];
+
+	$sql = "UPDATE {$tbl} SET
+        namek = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['namek'])."',
+        affiliation = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['affiliation'])."',
+        cphone = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['cphone'])."',        
+        inserted = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['inserted'])."',
+        updated = NOW()
+        WHERE memberid = '".mysqli_real_escape_string($GLOBALS['dblink'], $id)."'";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+	if($rs){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+function editWorkMember($id){
+	$tbl = $GLOBALS["_conf_tbl"]["member_poly"];
+
+	$sql = "UPDATE {$tbl} SET
+        affiliation = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['affiliation'])."',
+        affiliatione = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['affiliatione'])."',
+        jobcode = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['jobcode'])."',
+        department = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['department'])."',
+        pos = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['pos'])."',
+        aphone = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['aphone'])."',
+        fax = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['fax'])."',
+        azonecode = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['azonecode'])."',
+        aaddress1 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['aaddress1'])."',
+        aaddress2 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['aaddress2'])."',
+        postal = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['postal'])."',
+        updated = NOW()
+        WHERE memberid = '".mysqli_real_escape_string($GLOBALS['dblink'], $id)."'";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+	if($rs){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+function editAdditionalMember($id) {
+	$tbl = $GLOBALS["_conf_tbl"]["member_poly"];
+
+	$divcodeStr = !empty($_POST['divcode']) ? implode("|", $_POST['divcode']) : '';
+
+	$sql = "UPDATE {$tbl} SET
+	   divcode = '".mysqli_real_escape_string($GLOBALS['dblink'], $divcodeStr)."',
+        brncode = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['brncode'])."',
+        inserted = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['inserted'])."',
+        updated = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['updated'])."',
+        subscription = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['subscription'])."',
+        contactable = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['contactable'])."',
+         formno = '".mysqli_real_escape_string($GLOBALS['dblink'], empty($_POST['formno']) ? '0' : $_POST['formno'])."',
+        custom5 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['custom5'])."',
+        custom4 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['custom4'])."',        
+        infolevel = '".mysqli_real_escape_string($GLOBALS['dblink'], empty($_POST['infolevel']) ? '0' : $_POST['infolevel'])."',
+        custom1 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['custom1'])."',
+        custom2 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['custom2'])."'
+        WHERE memberid = '".mysqli_real_escape_string($GLOBALS['dblink'], $id)."'";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+	if($rs) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 
 
 //회원가입
@@ -804,112 +925,47 @@ function joinMember_(){
 
 //회원가입 - 관리자
 function joinMemberAdmin(){
-	$tbl = $GLOBALS["_conf_tbl"]["member"];
+	// 테이블 지정
+	$tbl = $GLOBALS["_conf_tbl"]["member_poly"];
 
-	$birth			= $_POST['birthY']."-".$_POST['birthM']."-".$_POST['birthD'];
-	$user_id		= mysqli_real_escape_string($GLOBALS['dblink'], $_POST['user_id']);
-	$user_pw		= mysqli_real_escape_string($GLOBALS['dblink'], $_POST['user_pw']);
-	$address_type	= "직장";
-	//$mobile			= $_POST['mobile_01']."-".$_POST['mobile_02']."-".$_POST['mobile_03'];
-	//$phone			= $_POST['phone_01']."-".$_POST['phone_02']."-".$_POST['phone_03'];
+	// 비밀번호 암호화 (PBKDF2 방식 사용)
+	$password = mysqli_real_escape_string($GLOBALS['dblink'], $_POST['passwd']);
+	$salt = base64_encode(random_bytes(16)); // 16바이트 솔트 생성
+	$iterations = 2400; // 반복 횟수
+	$hash_algo = 'sha1'; // 해시 알고리즘
 
-	$mobile			= $_POST['mobile'];
-	$user_email		= mysqli_real_escape_string($GLOBALS['dblink'], $_POST['email']);
-	$email_accept	= mysqli_real_escape_string($GLOBALS['dblink'], $_POST['email_accept'])=="Y"?"Y":"N";
-	if($email_accept=="Y"){
-		$email_accept_date = date("Y-m-d H:i:s");
-	}
-	$sms_accept	= mysqli_real_escape_string($GLOBALS['dblink'], $_POST['sms_accept'])=="Y"?"Y":"N";
-	if($sms_accept=="Y"){
-		$sms_accept_date = date("Y-m-d H:i:s");
-	}
+	// 해시 생성
+	$hash = hash_pbkdf2($hash_algo, $password, base64_decode($salt), $iterations, 0, true);
+	$hash_b64 = base64_encode($hash);
 
-	$arrCheck = getUserInfo(mysqli_real_escape_string($GLOBALS['dblink'], $user_id));
+	// 저장할 암호화된 비밀번호 형식: algo:iterations:salt:hash
+	$encrypted_password = "$hash_algo:$iterations:$salt:$hash_b64";
 
-	$comma = "";
-	for($i=0;$i<count($_POST['holiday']);$i++){
-		$holiday	.= $comma.$_POST['holiday'][$i];
-		$comma = ",";
-	}
-	$comma = "";
-	for($i=0;$i<count($_POST['orderday']);$i++){
-		$orderday	.= $comma.$_POST['orderday'][$i];
-		$comma = ",";
-	}
+	// INSERT 쿼리 작성
+	$sql = "INSERT INTO ".$tbl." SET
+        loginid = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['loginid'])."',
+        passwd = '".$encrypted_password."',
+        newpasswd = '".$encrypted_password."',
+        namek = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['namek'])."',
+        memcode = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['memcode'])."',
+        mb_level = 0,
+        mstatus = 1,
+        postal = '"."A"."';        
+    ";
 
-	$comma = "";
-	for($i=0;$i<count($_POST['child_admin']);$i++){
-		$child_admin		.= $comma.$_POST['child_admin'][$i];
-		$child_wdate		.= $comma.$_POST['child_wdate'][$i];
-		$comma = "||";
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+	$insert_idx = mysqli_insert_id($GLOBALS['dblink']);
+	$total = mysqli_affected_rows($GLOBALS['dblink']);
+
+	// 파일 첨부가 있는 경우 파일 처리
+	if(isset($_FILES) && !empty($_FILES)) {
+		inputMemberFiles("member", $insert_idx, $_FILES, 200);
 	}
 
-	if($arrCheck["total"] > 0){
-		return false;
+	if($total > 0){
+		return true;
 	}else{
-		$sql = "INSERT INTO ".$tbl." set 
-			user_id = '".$user_id."',
-			user_pw = password('".$user_pw."'),
-			user_name = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['user_name'])."',
-			user_status = '0',
-			user_level = '1',
-			birth = '$birth',
-			email = '".$user_email."',
-			email_accept = '$email_accept',
-			email_accept_date = '$email_accept_date',
-			sms_accept = '$sms_accept',
-			sms_accept_date = '$sms_accept_date',
-			zip = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['zip'])."',
-			address = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['address'])."',
-			address_ext = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['address_ext'])."',
-			address_type = '".$address_type."',
-			etc_1 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['etc_1'])."',
-			etc_2 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['etc_2'])."',
-			etc_3 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['etc_3'])."',
-			etc_4 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['etc_4'])."',
-			etc_5 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['etc_5'])."',
-			etc_6 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['etc_6'])."',
-			etc_7 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['etc_7'])."',
-			etc_8 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['etc_8'])."',
-			etc_9 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['etc_9'])."',
-			etc_10 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['etc_10'])."',
-			holiday = '".mysqli_real_escape_string($GLOBALS['dblink'], $holiday)."',
-			company = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['company'])."',
-			department = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['department'])."',
-			job = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['job'])."',
-			duty = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['duty'])."',
-			join_type = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['join_type'])."',
-			a_class = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['a_class'])."',
-			orderday = '".$orderday."',
-			phone = '".$phone."',
-			mobile = '".$mobile."',
-			`before` = 'N',
-			gender = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['gender']). "',
-			child_admin = '" . mysqli_real_escape_string($GLOBALS['dblink'], $child_admin) . "',
-			child_wdate = '" . mysqli_real_escape_string($GLOBALS['dblink'], $child_wdate) . "',		      
-			child_violation = '" . mysqli_real_escape_string($GLOBALS['dblink'], $child_violation) . "',
-			child_category = '" . mysqli_real_escape_string($GLOBALS['dblink'], $child_category) . "',
-			child_violation_wdate = '" . mysqli_real_escape_string($GLOBALS['dblink'], $child_violation_wdate) . "',
-			child_violation_start_date = '" . mysqli_real_escape_string($GLOBALS['dblink'], $child_violation_start_date) . "',
-			child_violation_end_date = '" . mysqli_real_escape_string($GLOBALS['dblink'], $child_violation_end_date) . "',
-			login_last = now(),
-			wdate = now(),
-			udate = now()
-		";
-//		echo $sql;
-//		exit;
-		$rs = mysqli_query($GLOBALS['dblink'], $sql);
-		$insert_idx = mysqli_insert_id($GLOBALS['dblink']);
-		$total = mysqli_affected_rows($GLOBALS['dblink']);
-
-		//파일처리
-		inputMemberFiles("member", $insert_idx, $_FILES, $thumwidth);
-
-		if($total > 0){
-			return true;
-		}else{
-			return false;
-		}
+		return false;
 	}
 }
 
@@ -1373,6 +1429,30 @@ function getUserInfo($id, $level=""){
     }else{
         $list['total_files'] = 0;
     }
+
+	return $list;
+}
+
+function getUserCheck($loginid) {
+	// 테이블 지정
+	$tbl = $GLOBALS["_conf_tbl"]["member_poly"];
+
+	// 로그인 ID로 회원 정보 조회
+	$sql = "SELECT * FROM $tbl WHERE loginid = '" . mysqli_real_escape_string($GLOBALS['dblink'], $loginid) . "'";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+	$total_rs = mysqli_num_rows($rs);
+
+	// 결과 배열 구성
+	$list = array();
+	if($total_rs > 0){
+		$list['total'] = $total_rs;
+		for($i=0; $i < $total_rs; $i++){
+			$list['list'][$i] = mysqli_fetch_assoc($rs);
+		}
+	} else {
+		$list['total'] = 0;
+	}
 
 	return $list;
 }
@@ -2016,49 +2096,12 @@ function deleteMember($id){
 
 //회원삭제
 function outMember($id){
-	$tbl			= $GLOBALS["_conf_tbl"]["member"];					//회원정보 테이블
-	$tbl_point		= $GLOBALS["_conf_tbl"]["point"];					//포인트
-	$tbl_order		= $GLOBALS["_conf_tbl"]["shop_order_info"];			//주문정보
-	$tbl_mycoupon	= $GLOBALS["_conf_tbl"]["mycoupon"];				//쿠폰
-	$tbl_mygiftcard = $GLOBALS["_conf_tbl"]["mygiftcard"];				//상품권
-	$tbl_shop_wish	= $GLOBALS["_conf_tbl"]["shop_wish"];				//관심상품
-	$tbl_board_qna	= "tbl_board_qna";									//문의내역
-	$tbl_member_add	= "tbl_member_address";								//배송지
+	$tbl			= $GLOBALS["_conf_tbl"]["member_poly"];					//회원정보 테이블
 
 	//회원 정보
-	$sql = "DELETE FROM ".$tbl." WHERE user_id='".$id."'	";
+	$sql = "DELETE FROM ".$tbl." WHERE memberid='".$id."'	";
 	$rs = mysqli_query($GLOBALS['dblink'], $sql);
 	$total_rs = mysqli_affected_rows($GLOBALS['dblink']);
-
-	################################# 모든 회원관련 정보의 아이디값 변경 ################################# ST
-	//적립금 테이블 탈퇴회원아이디로 업데이트
-	$sql = "UPDATE ".$tbl_point." SET user_id='deleted_user' WHERE user_id='".$id."'	";
-	$rs = mysqli_query($GLOBALS['dblink'], $sql);
-
-	//주문정보 테이블  탈퇴회원아이디로 업데이트
-	$sql = "UPDATE ".$tbl_order." SET order_id='deleted_user' WHERE order_id='".$id."'	";
-	$rs = mysqli_query($GLOBALS['dblink'], $sql);
-
-	//쿠폰 테이블  탈퇴회원아이디로 업데이트
-	$sql = "UPDATE ".$tbl_mycoupon." SET user_id='deleted_user' WHERE user_id='".$id."'	";
-	$rs = mysqli_query($GLOBALS['dblink'], $sql);
-
-	//상품권 테이블  탈퇴회원아이디로 업데이트
-	$sql = "UPDATE ".$tbl_mygiftcard." SET user_id='deleted_user' WHERE user_id='".$id."'	";
-	$rs = mysqli_query($GLOBALS['dblink'], $sql);
-
-	//관심상품 테이블  탈퇴회원아이디로 업데이트
-	$sql = "UPDATE ".$tbl_shop_wish." SET user_id='deleted_user' WHERE user_id='".$id."'	";
-	$rs = mysqli_query($GLOBALS['dblink'], $sql);
-
-	//문의내역 테이블  탈퇴회원아이디로 업데이트
-	$sql = "UPDATE ".$tbl_board_qna." SET w_user='deleted_user' WHERE w_user='".$id."'	";
-	$rs = mysqli_query($GLOBALS['dblink'], $sql);
-
-	//배송지 테이블  탈퇴회원아이디로 업데이트
-	$sql = "UPDATE ".$tbl_member_add." SET user_id='deleted_user' WHERE user_id='".$id."'	";
-	$rs = mysqli_query($GLOBALS['dblink'], $sql);
-	################################# 모든 회원관련 정보의 아이디값 변경 ################################# ED
 
 	if($total_rs > 0){
 		return true;

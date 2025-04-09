@@ -163,56 +163,182 @@ function getNextOrderNo() {
 	return $orderNo;
 }
 
-// 회원 아이템 정보 조회
+// 임원  정보 조회
 function getPolyMemberOfficer($id, $subQuery = ""){
-	$tbl_officer = $GLOBALS["_conf_tbl"]["member_officer_poly"];
+    $tbl_officer = $GLOBALS["_conf_tbl"]["member_officer_poly"];
 
-	$id_safe = mysqli_real_escape_string($GLOBALS['dblink'], $id);
-	$sql = "SELECT o.* 
+    $id_safe = mysqli_real_escape_string($GLOBALS['dblink'], $id);
+    $sql = "SELECT o.* 
             FROM {$tbl_officer} o
             WHERE o.o_mid = '{$id_safe}' 
             {$subQuery}
             ORDER BY o.o_id DESC";
 
-	$rs = mysqli_query($GLOBALS['dblink'], $sql);
-	$total_rs = mysqli_num_rows($rs);
+    $rs = mysqli_query($GLOBALS['dblink'], $sql);
+    $total_rs = mysqli_num_rows($rs);
 
-	// 결과 배열 초기화
-	$list = array('total' => $total_rs);
+    // 결과 배열 초기화
+    $list = array('total' => $total_rs);
 
-	if($total_rs > 0){
-		for($i=0; $i < $total_rs; $i++){
-			$list['list'][$i] = mysqli_fetch_assoc($rs);
-		}
-	} else {
-		$list['list'] = array();
-	}
+    if($total_rs > 0){
+        for($i=0; $i < $total_rs; $i++){
+            $list['list'][$i] = mysqli_fetch_assoc($rs);
+        }
+    } else {
+        $list['list'] = array();
+    }
 
-	return $list;
+    return $list;
+}
+
+// 임원 정보 조회 (페이징 기능 추가 및 검색 조건 적용)
+function listPolyMemberOfficer($id, $subQuery = "", $scale, $offset=0){
+    $tbl_officer = $GLOBALS["_conf_tbl"]["member_officer_poly"];
+
+    // offset 유효성 검사
+    if(!isset($offset) || $offset < 0 || $offset === '' || !is_numeric($offset)) {
+        $offset = 0;
+    }
+
+    // scale 유효성 검사
+    if(!isset($scale) || !is_numeric($scale)) {
+        $scale = 10; // 기본값 설정
+    }
+
+    // WHERE 절 구성
+    $whereClause = "";
+    $conditions = [];
+
+    if(!empty($id)) {
+        $id_safe = mysqli_real_escape_string($GLOBALS['dblink'], $id);
+        $conditions[] = "o.o_mid = '{$id_safe}'";
+    }
+
+    // 검색 조건 추가
+    // 임원 그룹 필터링
+    if(isset($_GET['o_group']) && !empty($_GET['o_group'])) {
+        $o_group = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['o_group']);
+        $conditions[] = "o.o_group = '{$o_group}'";
+    }
+
+    // 임원 역할 필터링
+    if(isset($_GET['o_role']) && !empty($_GET['o_role'])) {
+        $o_role = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['o_role']);
+        $conditions[] = "o.o_role = '{$o_role}'";
+    }
+
+    // 이름 검색
+    if(isset($_GET['o_name']) && !empty($_GET['o_name'])) {
+        $o_name = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['o_name']);
+        $conditions[] = "o.o_name LIKE '%{$o_name}%'";
+    }
+
+    // 소속 검색
+    if(isset($_GET['o_affiliation']) && !empty($_GET['o_affiliation'])) {
+        $o_affiliation = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['o_affiliation']);
+        $conditions[] = "o.o_affiliation LIKE '%{$o_affiliation}%'";
+    }
+
+    // 날짜 범위 검색
+    $s_date = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['s_date']);
+    $e_date = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['e_date']);
+    if(isset($_GET['s_date']) && !empty($_GET['s_date']) && isset($_GET['e_date']) && !empty($_GET['e_date'])) {
+        $conditions[] = "(o.o_dutyfrom <= '{$e_date}' AND (o.o_dutyto >= '{$s_date}' OR o.o_dutyto = ''))";
+    }
+    else if(isset($_GET['s_date']) && !empty($_GET['s_date'])) {
+        $conditions[] = "(o.o_dutyfrom >= '{$s_date}' OR o.o_dutyto >= '{$s_date}')";
+    }
+    else if(isset($_GET['e_date']) && !empty($_GET['e_date'])) {
+         $conditions[] = "(o.o_dutyfrom <= '{$e_date}')";
+    }
+
+    // 조건들을 WHERE 절로 결합
+    if(!empty($conditions)) {
+        $whereClause = "WHERE " . implode(" AND ", $conditions);
+    }
+
+    // 정렬 옵션
+    $orderClause = "ORDER BY o.o_id DESC";
+    if(isset($_GET['orderby1']) && !empty($_GET['orderby1'])) {
+        $orderby1 = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['orderby1']);
+        $orderClause = "ORDER BY o.{$orderby1}";
+
+        if(isset($_GET['orderby2']) && !empty($_GET['orderby2'])) {
+            $orderby2 = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['orderby2']);
+            $orderClause .= ", o.{$orderby2}";
+        }
+    }
+
+    // 전체 레코드 수 조회를 위한 쿼리
+    $countSql = "SELECT COUNT(*) as cnt
+                FROM {$tbl_officer} o
+                {$whereClause}
+                {$subQuery}";
+
+    $countRs = mysqli_query($GLOBALS['dblink'], $countSql);
+    $countRow = mysqli_fetch_assoc($countRs);
+    $total_rs = $countRow['cnt'];
+
+    // 페이징 처리가 적용된 메인 쿼리
+    $sql = "SELECT o.*
+            FROM {$tbl_officer} o
+            {$whereClause}
+            {$subQuery}
+            {$orderClause}";
+    echo "echo:"; print_r($sql); echo "<br>" ;
+    // 결과 배열 초기화
+    $list = array('total' => $total_rs);
+
+    if($total_rs > 0) {
+        // offset이 전체 레코드 수보다 크면 조정
+        if($total_rs <= $offset) {
+            $offset = max(0, $total_rs - ($scale > 0 ? $scale : $total_rs));
+        }
+
+        // LIMIT 적용
+        $limitSql = $sql . " LIMIT $offset, $scale";
+
+        // 결과 조회
+        $rs = mysqli_query($GLOBALS['dblink'], $limitSql);
+        $list['list'] = array();
+        $list['list']['total'] = mysqli_num_rows($rs);
+
+        // 결과 데이터 처리
+        $i = 0;
+        while($row = mysqli_fetch_assoc($rs)) {
+            $list['list'][$i] = $row;
+            $i++;
+        }
+    } else {
+        $list['list']['total'] = 0;
+        $list['list'] = array();
+    }
+
+    return $list;
 }
 
 // 회원 납부 내역 조회
 function infoOfficerMember($id, $o_id){
-	$tbl_officer = $GLOBALS["_conf_tbl"]["member_officer_poly"];
+    $tbl_officer = $GLOBALS["_conf_tbl"]["member_officer_poly"];
 
-	$id_safe = mysqli_real_escape_string($GLOBALS['dblink'], $id);
-	$o_id_safe = mysqli_real_escape_string($GLOBALS['dblink'], $o_id);
+    $id_safe = mysqli_real_escape_string($GLOBALS['dblink'], $id);
+    $o_id_safe = mysqli_real_escape_string($GLOBALS['dblink'], $o_id);
 
-	$sql = "SELECT * FROM {$tbl_officer} 
+    $sql = "SELECT * FROM {$tbl_officer} 
             WHERE o_mid = '{$id_safe}' 
             AND o_id = '{$o_id_safe}'";
 
-	$rs = mysqli_query($GLOBALS['dblink'], $sql);
-	$total_rs = mysqli_num_rows($rs);
+    $rs = mysqli_query($GLOBALS['dblink'], $sql);
+    $total_rs = mysqli_num_rows($rs);
 
-	if($total_rs > 0){
-		$list['total'] = $total_rs;
-		$list['list'] = mysqli_fetch_assoc($rs);
-	} else {
-		$list['total'] = 0;
-	}
+    if($total_rs > 0){
+        $list['total'] = $total_rs;
+        $list['list'] = mysqli_fetch_assoc($rs);
+    } else {
+        $list['total'] = 0;
+    }
 
-	return $list;
+    return $list;
 }
 
 // 회원 납부 내역 조회
@@ -311,6 +437,8 @@ function insertExecutiveMember($id)
 
 	$sql = "INSERT INTO {$tbl} SET
             o_mid = '".mysqli_real_escape_string($GLOBALS['dblink'], $id)."',
+            o_name = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_name'])."',
+            o_affiliation = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_affiliation'])."',
             o_group = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_group'])."',
             o_sub = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_sub'])."',
             o_role = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['o_role'])."',
@@ -433,93 +561,6 @@ function insertTransactionMember($id) {
 	}
 }
 
-
-//회원정보 수정
-function editInfoMember($id){
-	$tbl = $GLOBALS["_conf_tbl"]["member_poly"];
-
-	$sql = "UPDATE {$tbl} SET
-        namec = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['namec'])."',
-        namee = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['namee'])."',
-        memcode = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['memcode'])."',
-        mstatus = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['mstatus'])."',
-        gender = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['gender'])."',
-        hphone = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['hphone'])."',
-        cphone = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['cphone'])."',
-        email = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['email'])."',
-        homepage = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['homepage'])."',
-        country = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['country'])."',
-        hzonecode = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['hzonecode'])."',
-        haddress1 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['haddress1'])."',
-        haddress2 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['haddress2'])."',
-        remark = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['remark'])."',
-        updated = NOW()
-        WHERE memberid = '".mysqli_real_escape_string($GLOBALS['dblink'], $id)."'";
-
-	$rs = mysqli_query($GLOBALS['dblink'], $sql);
-
-	if($rs){
-		return true;
-	}else{
-		return false;
-	}
-}
-
-function editWorkMember($id){
-	$tbl = $GLOBALS["_conf_tbl"]["member_poly"];
-
-	$sql = "UPDATE {$tbl} SET
-        affiliation = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['affiliation'])."',
-        affiliatione = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['affiliatione'])."',
-        jobcode = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['jobcode'])."',
-        department = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['department'])."',
-        pos = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['pos'])."',
-        aphone = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['aphone'])."',
-        fax = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['fax'])."',
-        azonecode = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['azonecode'])."',
-        aaddress1 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['aaddress1'])."',
-        aaddress2 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['aaddress2'])."',
-        postal = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['postal'])."',
-        updated = NOW()
-        WHERE memberid = '".mysqli_real_escape_string($GLOBALS['dblink'], $id)."'";
-
-	$rs = mysqli_query($GLOBALS['dblink'], $sql);
-
-	if($rs){
-		return true;
-	}else{
-		return false;
-	}
-}
-
-function editAdditionalMember($id) {
-	$tbl = $GLOBALS["_conf_tbl"]["member_poly"];
-
-	$divcodeStr = !empty($_POST['divcode']) ? implode("|", $_POST['divcode']) : '';
-
-	$sql = "UPDATE {$tbl} SET
-	   divcode = '".mysqli_real_escape_string($GLOBALS['dblink'], $divcodeStr)."',
-        brncode = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['brncode'])."',
-        inserted = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['inserted'])."',
-        updated = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['updated'])."',
-        subscription = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['subscription'])."',
-        contactable = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['contactable'])."',
-         formno = '".mysqli_real_escape_string($GLOBALS['dblink'], empty($_POST['formno']) ? '0' : $_POST['formno'])."',
-        custom5 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['custom5'])."',
-        custom4 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['custom4'])."',        
-        infolevel = '".mysqli_real_escape_string($GLOBALS['dblink'], empty($_POST['infolevel']) ? '0' : $_POST['infolevel'])."',
-        custom1 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['custom1'])."',
-        custom2 = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['custom2'])."'
-        WHERE memberid = '".mysqli_real_escape_string($GLOBALS['dblink'], $id)."'";
-
-	$rs = mysqli_query($GLOBALS['dblink'], $sql);
-
-	if($rs) {
-		return true;
-	} else {
-		return false;
-	}
-}
 
 
 function editAcareerMember($id) {
@@ -800,4 +841,20 @@ function deletePaidMember($p_mid, $p_id){
 	} else {
 		return false;
 	}
+}
+
+function deleteTransactionMember($t_mid, $t_orderno){
+    $tbl = $GLOBALS["_conf_tbl"]["account_transaction_poly"];
+
+    $sql = "DELETE FROM {$tbl}
+            WHERE t_mid = '".mysqli_real_escape_string($GLOBALS['dblink'], $t_mid)."'
+            AND t_orderno = '".mysqli_real_escape_string($GLOBALS['dblink'], $t_orderno)."'";
+
+    $rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+    if($rs){
+        return true;
+    } else {
+        return false;
+    }
 }

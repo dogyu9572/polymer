@@ -440,6 +440,15 @@ $arrCardType = array(
 	"기타카드" => "기타카드"
 );
 
+// 임원 검색 필드 옵션
+$arrSortFeld = array(
+	"o_group" => "구분",
+	"o_role" => "직책",
+	"o_name" => "이름",
+	"o_affiliation" => "소속",
+	"o_dutyfrom" => "임기"
+);
+
 //국가 코드
 $arrCountry = array(
 	"Korea" => "Korea, Republic of",

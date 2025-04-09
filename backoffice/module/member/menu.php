@@ -1,8 +1,13 @@
 <?
 $thisPHPname = basename($_SERVER['PHP_SELF']);
 switch($thisPHPname){
-	case 'member.php' :
-	case 'member_info.php' : 
+    case 'member.php' :
+    case 'member_info.php' :
+    case 'member_info_work.php' :
+    case 'member_info_other.php' :
+    case 'member_info_additional.php' :
+    case 'member_info_executive.php' :
+    case 'member_info_payment.php' :
 		$leftMenuClass[0] = "on";
 	break;
 	case 'member_standby.php' :

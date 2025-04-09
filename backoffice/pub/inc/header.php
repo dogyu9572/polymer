@@ -6,9 +6,8 @@ switch($thisPHPname){
     case 'category.php' : case 'category_info.php' :
         $topMenuClass[1] = "on"; break;
 	case 'member.php' : case 'member_info.php' : case 'member_add.php' : case 'member_outlist.php' : case 'member_standby.php' : case 'member_standby_info.php' : case  'executive.php' : case  'non_member.php' :
+    case 'member_info_work.php' : case 'member_info_other.php' : case 'member_info_additional.php' : case 'member_info_executive.php' : case 'member_info_payment.php' :
 		$topMenuClass[2] = "on"; break;
-	/*case 'banner.php' : case 'banner_add.php' : case 'banner_info.php' :
-		$topMenuClass[17] = "on"; break;*/
 	case 'popup_list.php' : case 'popup_info.php' : case 'popup_add.php' : 
 		$topMenuClass[18] = "on"; break;
     case 'admin_set.php' :

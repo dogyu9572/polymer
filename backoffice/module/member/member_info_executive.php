@@ -1,6 +1,6 @@
 <?PHP
 include $_SERVER['DOCUMENT_ROOT'] . "/backoffice/pub/inc/admin_top.php";
-include "./menu.php";
+include $_SERVER['DOCUMENT_ROOT'] . "/backoffice/module/admin/menu.php";
 
 include_once $_SERVER ['DOCUMENT_ROOT'] . "/module/member/member.lib.php";
 include_once $_SERVER ['DOCUMENT_ROOT'] . "/module/member/account.lib.php";
@@ -74,7 +74,7 @@ $arrMemberOfficerList = getPolyMemberOfficer(mysqli_real_escape_string($GLOBALS[
                                                 <td class="mono_btm"><i class="mo_vw">관리</i>
                                                     <div class="btns">
                                                         <a href="javascript:void(0);" onclick="OpenApplyView('edit', <?=$arrMemberOfficerList["list"][0]['o_mid']?>, <?=$arrMemberOfficerList["list"][$i]['o_id']?>)" class="btn perf">수정</a>
-                                                        <button type="button" class="btn del" style="line-height:32px;" onclick="delExecutiveMember('<?=$arrMemberOfficerList["list"][$i]['memberid']?>', <?=$arrMemberOfficerList["list"][$i]['o_id']?>);">삭제</button>
+                                                        <button type="button" class="btn del" style="line-height:32px;" onclick="delExecutiveMember('<?=$arrMemberOfficerList["list"][$i]['o_mid']?>', <?=$arrMemberOfficerList["list"][$i]['o_id']?>);">삭제</button>
                                                     </div>
                                                 </td>
                                             </tr>
