@@ -317,6 +317,93 @@ function listPolyMemberOfficer($id, $subQuery = "", $scale, $offset=0){
     return $list;
 }
 
+function listTransactionMember($id, $subQuery = "", $scale, $offset=0){
+	$tbl = $GLOBALS["_conf_tbl"]["account_transaction_poly"];
+
+	// offset 유효성 검사
+	if(!isset($offset) || $offset < 0 || $offset === '' || !is_numeric($offset)) {
+		$offset = 0;
+	}
+
+	// scale 유효성 검사
+	if(!isset($scale) || !is_numeric($scale)) {
+		$scale = 10; // 기본값 설정
+	}
+
+	// WHERE 절 구성
+	$whereClause = "";
+	$conditions = [];
+
+	if(!empty($id)) {
+		$id_safe = mysqli_real_escape_string($GLOBALS['dblink'], $id);
+		$conditions[] = "t_mid = '{$id_safe}'";
+	}
+
+	// 검색 조건 추가 - 날짜 범위 검색
+	if(isset($_GET['s_date']) && !empty($_GET['s_date'])) {
+		$s_date = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['s_date']);
+		$conditions[] = "DATE(t_inserted) >= '{$s_date}'";
+	}
+
+	if(isset($_GET['e_date']) && !empty($_GET['e_date'])) {
+		$e_date = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['e_date']);
+		$conditions[] = "DATE(t_inserted) <= '{$e_date}'";
+	}
+
+	// 조건들을 WHERE 절로 결합
+	if(!empty($conditions)) {
+		$whereClause = "WHERE " . implode(" AND ", $conditions);
+	}
+
+	// 정렬 옵션
+	$orderClause = "ORDER BY t_inserted DESC";
+
+	// 전체 레코드 수 조회
+	$countSql = "SELECT COUNT(*) as cnt
+                FROM {$tbl}
+                {$whereClause}
+                {$subQuery}";
+
+	$countRs = mysqli_query($GLOBALS['dblink'], $countSql);
+	$countRow = mysqli_fetch_assoc($countRs);
+	$total_rs = $countRow['cnt'];
+
+	// 결과 배열 초기화
+	$list = array('total' => $total_rs);
+
+	if($total_rs > 0) {
+		// offset 조정
+		if($total_rs <= $offset) {
+			$offset = max(0, $total_rs - ($scale > 0 ? $scale : $total_rs));
+		}
+
+		// 메인 쿼리
+		$sql = "SELECT *
+                FROM {$tbl}
+                {$whereClause}
+                {$subQuery}
+                {$orderClause}
+                LIMIT $offset, $scale";
+
+		// 결과 조회
+		$rs = mysqli_query($GLOBALS['dblink'], $sql);
+		$list['list'] = array();
+		$list['list']['total'] = mysqli_num_rows($rs);
+
+		// 결과 데이터 처리
+		$i = 0;
+		while($row = mysqli_fetch_assoc($rs)) {
+			$list['list'][$i] = $row;
+			$i++;
+		}
+	} else {
+		$list['list']['total'] = 0;
+		$list['list'] = array();
+	}
+
+	return $list;
+}
+
 // 회원 납부 내역 조회
 function infoOfficerMember($id, $o_id){
     $tbl_officer = $GLOBALS["_conf_tbl"]["member_officer_poly"];
