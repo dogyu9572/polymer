@@ -54,23 +54,60 @@ if($_POST['evnMode']=="insert"){
 	}
 
 }else if($_POST['evnMode']=="delete"){
-	//DB연결
-	$dblink = SetConn($_conf_db["main_db"]);
+    //DB연결
+    $dblink = SetConn($_conf_db["main_db"]);
 
-	$RS2 = outMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']));		// 탙퇴회원처리
-	//$RS2 = outMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['user_id']));		// 삭제처리
-	if($RS2 == true){
-		if($_POST['returnURL']){
-			jsGo($_POST['returnURL'],"", "정상적으로 삭제되었습니다.");
-		}else{
-			jsGo("member.php","","정상적으로 삭제처리되었습니다.");
-		}
-	}else{
-		jsGo("member.php","","삭제중 오류가 발생하였습니다.");
-	}
+    if ($_POST['evnSubMode'] == "transaction"){
+        $RS2 = deleteTransactionMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']),mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['t_orderno']));
+    }else if ($_POST['evnSubMode'] == "batch_transaction"){
+        // 여러 트랜잭션 한 번에 삭제
+        $memberIds = explode(',', $_REQUEST['memberid']);
+        $orderNos = explode(',', $_REQUEST['t_orderno']);
 
-	//DB해제
-	SetDisConn($dblink);
+        $success = true;
+        for ($i = 0; $i < count($memberIds); $i++) {
+            if (!empty($memberIds[$i]) && !empty($orderNos[$i])) {
+                $result = deleteTransactionMember(
+                    mysqli_real_escape_string($GLOBALS['dblink'], $memberIds[$i]),
+                    mysqli_real_escape_string($GLOBALS['dblink'], $orderNos[$i])
+                );
+
+                if (!$result) {
+                    $success = false;
+                }
+            }
+        }
+        $RS2 = $success;
+    }else if ($_POST['evnSubMode'] == "batch_member"){
+        // 여러 회원 한 번에 삭제
+        $memberIds = explode(',', $_REQUEST['memberid']);
+
+        $success = true;
+        foreach ($memberIds as $memberId) {
+            if (!empty($memberId)) {
+                $result = outMember(mysqli_real_escape_string($GLOBALS['dblink'], $memberId));
+                if (!$result) {
+                    $success = false;
+                }
+            }
+        }
+        $RS2 = $success;
+    }else{
+        $RS2 = outMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']));		// 삭제처리
+    }
+
+    if($RS2 == true){
+        if($_POST['returnURL']){
+            jsGo($_POST['returnURL'],"", "정상적으로 삭제되었습니다.");
+        }else{
+            jsGo("member.php","","정상적으로 삭제처리되었습니다.");
+        }
+    }else{
+        jsGo("member.php","","삭제중 오류가 발생하였습니다.");
+    }
+
+    //DB해제
+    SetDisConn($dblink);
 
 }else if($_POST['evnMode']=="out"){
 	//DB연결

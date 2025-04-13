@@ -181,36 +181,145 @@ function getMemberListOrderJoin($jb, $sw, $sk, $scale, $offset=0, $subQuery=""){
     return $list;
 }
 
-
-//회원목록
-function getMemberList($jb, $sw, $sk, $scale, $offset=0, $subQuery="", $orderBy=""){
-	// 테이블 지정
+function getMemberList($scale, $offset=0, $where="", $order="", $memcode_status="") {
 	$tbl = $GLOBALS["_conf_tbl"]["member_poly"];
+	$sqlWhere = [];
 
-	$sql = "SELECT * FROM $tbl WHERE 1=1 $subQuery";
-
-	if($sw == "namek"){
-		$sql .= " AND namek like '%$sk%' ";
-	}else if($sw == "loginid") {
-		$sql .= " AND loginid like '%$sk%' ";
-	}else if($sw == "memberid"){
-			$sql .= " AND memberid like '%$sk%' ";
-	}else if($sw == "email"){
-		$sql .= " AND email like '%$sk%' ";
-	}else if($sw == "affiliation"){
-		$sql .= " AND affiliation like '%$sk%' ";
-	}else if($sw == "cphone") {
-		$sql .= " AND cphone like '%$sk%' ";
+	// 기본 조건 설정
+	if (!empty($where)) {  // 비어있지 않을 때만 추가
+		$sqlWhere[] = $where;
 	}
 
-	if($_REQUEST['s_date']){
-		$sql .= " AND inserted >= '".mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['s_date'])." 00:00:00' ";
-	}
-	if($_REQUEST['e_date']){
-		$sql .= " AND inserted <= '".mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['e_date'])." 23:59:59' ";
+	// 회원상태 (mstatus)
+	if (isset($_GET['mstatus']) && $_GET['mstatus'] !== '') {
+		$mstatus = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['mstatus']);
+	} else{
+		$mstatus = "1";
 	}
 
-	$sql .= $orderBy;
+		$sqlWhere[] = "mstatus='$mstatus'";
+
+	// 회원구분 (memcode)
+		if ($memcode_status === 'N') {
+			$memcode = "N";
+			$sqlWhere[] = "memcode='$memcode'";
+		}else if (isset($_GET['memcode']) && $_GET['memcode'] !== '') {
+			$memcode = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['memcode']);
+			$sqlWhere[] = "memcode='$memcode'";
+		} else {
+			$sqlWhere[] = "memcode!='N'";
+		}
+
+
+		// 이름 (namek)
+		if (isset($_GET['namek']) && $_GET['namek'] !== '') {
+			$namek = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['namek']);
+			$sqlWhere[] = "namek LIKE '%$namek%'";
+		}
+
+		// 소속 (affiliation)
+		if (isset($_GET['affiliation']) && $_GET['affiliation'] !== '') {
+			$affiliation = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['affiliation']);
+			$sqlWhere[] = "affiliation LIKE '%$affiliation%'";
+		}
+
+		// 아이디 (loginid)
+		if (isset($_GET['loginid']) && $_GET['loginid'] !== '') {
+			$loginid = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['loginid']);
+			$sqlWhere[] = "loginid LIKE '%$loginid%'";
+		}
+
+		// 휴대전화 (cphone)
+		if (isset($_GET['cphone']) && $_GET['cphone'] !== '') {
+			$cphone = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['cphone']);
+			$sqlWhere[] = "cphone LIKE '%$cphone%'";
+		}
+
+		// 이메일 (email)
+		if (isset($_GET['email']) && $_GET['email'] !== '') {
+			$email = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['email']);
+			$sqlWhere[] = "email LIKE '%$email%'";
+		}
+
+		// 학위 (degree)
+		if (isset($_GET['degree']) && $_GET['degree'] !== '') {
+			$degree = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['degree']);
+			$sqlWhere[] = "degree='$degree'";
+		}
+
+		// 직종 (jobcode)
+		if (isset($_GET['jobcode']) && $_GET['jobcode'] !== '') {
+			$jobcode = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['jobcode']);
+			$sqlWhere[] = "jobcode='$jobcode'";
+		}
+
+		// 저널구독 (subscription)
+		if (isset($_GET['subscription']) && $_GET['subscription'] !== '') {
+			$subscription = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['subscription']);
+			$sqlWhere[] = "subscription='$subscription'";
+		}
+
+		// 현임원 (executive_type)
+		if (isset($_GET['executive_type']) && $_GET['executive_type'] !== '') {
+			$executive_type = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['executive_type']);
+			$sqlWhere[] = "executive_type='$executive_type'";
+		}
+
+		// 차기 임원 (next_executive_type)
+		if (isset($_GET['next_executive_type']) && $_GET['next_executive_type'] !== '') {
+			$next_executive_type = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['next_executive_type']);
+			$sqlWhere[] = "next_executive_type='$next_executive_type'";
+		}
+
+		// 지부/지회 (brncode)
+		if (isset($_GET['brncode']) && $_GET['brncode'] !== '') {
+			$brncode = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['brncode']);
+			$sqlWhere[] = "brncode='$brncode'";
+		}
+
+		// 이메일 수신여부 (custom4)
+		if (isset($_GET['custom4']) && $_GET['custom4'] !== '') {
+			$custom4 = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['custom4']);
+			$sqlWhere[] = "custom4='$custom4'";
+		}
+
+		// 가입일 (rsdate, redate)
+		if (isset($_REQUEST['rsdate']) && $_REQUEST['rsdate'] !== '') {
+			$rsdate = mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['rsdate']);
+			$sqlWhere[] = "inserted >= '$rsdate 00:00:00'";
+		}
+		if (isset($_REQUEST['redate']) && $_REQUEST['redate'] !== '') {
+			$redate = mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['redate']);
+			$sqlWhere[] = "inserted <= '$redate 23:59:59'";
+		}
+
+		// 회비납부일 (dsdate, dedate)
+		if (isset($_REQUEST['dsdate']) && $_REQUEST['dsdate'] !== '') {
+			$dsdate = mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['dsdate']);
+			$sqlWhere[] = "updated >= '$dsdate 00:00:00'";
+		}
+		if (isset($_REQUEST['dedate']) && $_REQUEST['dedate'] !== '') {
+			$dedate = mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['dedate']);
+			$sqlWhere[] = "updated <= '$dedate 23:59:59'";
+		}
+
+		// 검색 키워드 (search_keyword)
+		if (isset($_GET['search_keyword']) && $_GET['search_keyword'] !== '') {
+			$search_keyword = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['search_keyword']);
+			$sqlWhere[] = "(namek LIKE '%$search_keyword%' OR loginid LIKE '%$search_keyword%' OR email LIKE '%$search_keyword%' OR cphone LIKE '%$search_keyword%' OR affiliation LIKE '%$search_keyword%')";
+		}
+
+	// 기본 정렬 설정
+	if (empty($order)) {
+		$order = " order by memberid desc";
+	}
+
+	// WHERE 조건 문자열 생성
+	$whereClause = count($sqlWhere) > 0 ? "WHERE " . implode(' AND ', $sqlWhere) : "WHERE 1=1";
+
+	// SQL 쿼리 생성
+	$sql = "SELECT * FROM $tbl $whereClause $order";
+	echo "echo:"; print_r($sql); echo "<br>" ;
 
 	// 전체 레코드 수 먼저 조회
 	$rs = mysqli_query($GLOBALS['dblink'], $sql);

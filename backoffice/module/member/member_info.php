@@ -64,7 +64,7 @@ $arrCodeCategory = getPolyCategoryOption("회원구분");
                         <th>회원구분</th>
                         <td>
                             <select name="memcode">
-                                <option value="">회원구분 선택</option>
+                                <option value="">선택</option>
 		                        <?php foreach($arrCodeCategory as $code => $name): ?>
                                     <option value="<?=$code?>" <?=$code==$arrInfo["list"][0]["memcode"]?" selected":""?>><?=$name?></option>
 		                        <?php endforeach; ?>

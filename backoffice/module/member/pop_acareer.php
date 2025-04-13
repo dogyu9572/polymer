@@ -50,11 +50,9 @@ SetDisConn ( $dblink );
                         <td>
                             <select name="degree">
                                 <option value="">선택</option>
-                                <option value="학사" <?php echo ($_GET["degree"] == "학사") ? " selected" : "" ?>>학사</option>
-                                <option value="석사수료" <?php echo ($_GET["degree"] == "석사수료") ? " selected" : "" ?>>석사수료</option>
-                                <option value="석사" <?php echo ($_GET["degree"] == "석사") ? " selected" : "" ?>>석사</option>
-                                <option value="박사수료" <?php echo ($_GET["degree"] == "박사수료") ? " selected" : "" ?>>박사수료</option>
-                                <option value="박사" <?php echo ($_GET["degree"] == "박사") ? " selected" : "" ?>>박사</option>
+                                <?php foreach($arrDegree as $code => $name): ?>
+                                    <option value="<?=$code?>" <?=($_GET["degree"] == $code) ? " selected" : ""?>><?=$name?></option>
+                                <?php endforeach; ?>
                             </select>
                         </td>
                     <tr>

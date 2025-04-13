@@ -27,9 +27,12 @@ if (isset($_GET['mstatus']) && $_GET['mstatus'] !== '') {
 // DB연결
 $dblink = SetConn ( $_conf_db ["main_db"] );
 
-$arrGroupCategory = getPolyCategoryOption("학회임원");
 $arrTransactionMember = listTransactionMember("", "", $scale, $_REQUEST['offset']);
+$arrCodeCategory = getPolyCategoryOption("회원구분");
+$arrBranchCategory = getPolyCategoryOption("지부");
+$arrAccountBank = getAccountBank();
 $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
+$arrAccountCard = getTransactionCard();
 
 // DB해제
 //SetDisConn ( $dblink );
@@ -37,16 +40,15 @@ $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
 
     <div class="container">
         <div class="title">결제내역</div>
-        <form name="frmSort" method="get" action="executive.php">
+        <form name="frmSort" method="get" action="payment_history.php">
             <div class="inbox top_search">
                 <dl>
                     <dt>회원여부</dt>
                     <dd>
-                        <select name="orderby1" class="text"  style="width:120px;">
+                        <select name="t_mid" class="text" style="width:120px;">
                             <option value="">전체</option>
-				            <?php foreach ($arrSortFeld as $sortno => $sortname): ?>
-                                <option value="<?= $sortno ?>" <?= $_GET['orderby1'] == $sortno ? "selected" : "" ?>><?= $sortname ?></option>
-				            <?php endforeach; ?>
+                            <option value="1" <?= isset($_GET['t_mid']) && $_GET['t_mid'] === '1' ? "selected" : "" ?>>회원</option>
+                            <option value="0" <?= isset($_GET['t_mid']) && $_GET['t_mid'] === '0' ? "selected" : "" ?>>비회원</option>
                         </select>
                     </dd>
                 </dl>
@@ -54,8 +56,8 @@ $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
                     <dt>정렬조건1</dt>
                     <dd>
                         <select name="orderby1" class="text"  style="width:120px;">
-                            <option value="">전체</option>
-							<?php foreach ($arrSortFeld as $sortno => $sortname): ?>
+                            <option value="">선택</option>
+							<?php foreach ($arrTransactionSortFeld as $sortno => $sortname): ?>
                                 <option value="<?= $sortno ?>" <?= $_GET['orderby1'] == $sortno ? "selected" : "" ?>><?= $sortname ?></option>
 							<?php endforeach; ?>
                         </select>
@@ -64,11 +66,11 @@ $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
                 <dl>
                     <dt>정렬조건2</dt>
                     <dd>
-                        <select name="orderby2" class="text"  style="width:120px;">
-                            <option value="">전체</option>
-							<?php foreach ($arrSortFeld as $sortno => $sortname): ?>
-                                <option value="<?= $sortno ?>" <?= $_GET['orderby2'] == $sortno ? "selected" : "" ?>><?= $sortname ?></option>
-							<?php endforeach; ?>
+                        <select name="orderby2" class="text" style="width:120px;">
+                            <option value="">선택</option>
+                            <?php foreach ($arrTransactionSortFeld as $sortno => $sortname): ?>
+                                <option value="<?= $sortno ?>" <?= isset($_GET['orderby2']) && $_GET['orderby2'] == $sortno ? "selected" : "" ?>><?= $sortname ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </dd>
                 </dl>
@@ -77,33 +79,33 @@ $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
                 <dl>
                     <dt>회원구분</dt>
                     <dd>
-                        <select name="orderby1" class="text"  style="width:120px;">
-                            <option value="">전체</option>
-				            <?php foreach ($arrSortFeld as $sortno => $sortname): ?>
-                                <option value="<?= $sortno ?>" <?= $_GET['orderby1'] == $sortno ? "selected" : "" ?>><?= $sortname ?></option>
-				            <?php endforeach; ?>
+                        <select name="memcode" class="text"  style="width:120px;">
+                            <option value="">선택</option>
+                            <?php foreach($arrCodeCategory as $code => $name): ?>
+                                <option value="<?=$code?>" <?=$code==$_GET['memcode']?" selected":""?>><?=$name?></option>
+                            <?php endforeach; ?>
                         </select>
                     </dd>
                 </dl>
                 <dl>
                     <dt>납부여부</dt>
                     <dd>
-                        <select name="orderby1" class="text"  style="width:120px;">
+                        <select name="t_complete" class="text"  style="width:120px;">
                             <option value="">전체</option>
-				            <?php foreach ($arrSortFeld as $sortno => $sortname): ?>
-                                <option value="<?= $sortno ?>" <?= $_GET['orderby1'] == $sortno ? "selected" : "" ?>><?= $sortname ?></option>
-				            <?php endforeach; ?>
+                            <option value="A" <?= isset($_GET['t_complete']) && $_GET['t_complete'] == 'A' ? "selected" : "" ?>>완납</option>
+                            <option value="P" <?= isset($_GET['t_complete']) && $_GET['t_complete'] == 'P' ? "selected" : "" ?>>일부납</option>
+                            <option value="N" <?= isset($_GET['t_complete']) && $_GET['t_complete'] == 'N' ? "selected" : "" ?>>미납</option>
                         </select>
                     </dd>
                 </dl>
                 <dl>
                     <dt>결제방법</dt>
                     <dd>
-                        <select name="orderby2" class="text"  style="width:120px;">
-                            <option value="">전체</option>
-				            <?php foreach ($arrSortFeld as $sortno => $sortname): ?>
-                                <option value="<?= $sortno ?>" <?= $_GET['orderby2'] == $sortno ? "selected" : "" ?>><?= $sortname ?></option>
-				            <?php endforeach; ?>
+                        <select name="t_method" class="text" style="width:120px;">
+                            <option value="">선택</option>
+                            <?php foreach($arrPayType as $key => $value): ?>
+                                <option value="<?= $value ?>" <?= isset($_GET['t_method']) && $_GET['t_method'] == $value ? 'selected' : '' ?>><?= $value ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </dd>
                 </dl>
@@ -112,19 +114,19 @@ $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
                 <dl>
                     <dt>이름</dt>
                     <dd>
-                        <input type="text"  name="o_name" value="<?=$_GET['o_name']?>" />
+                        <input type="text"  name="t_name" value="<?=$_GET['t_name']?>" />
                     </dd>
                 </dl>
                 <dl>
                     <dt>소속</dt>
                     <dd>
-                        <input type="text"  name="o_affiliation" value="<?=$_GET['o_affiliation']?>" />
+                        <input type="text"  name="t_affiliation" value="<?=$_GET['t_affiliation']?>" />
                     </dd>
                 </dl>
                 <dl>
                     <dt>이메일</dt>
                     <dd>
-                        <input type="text"  name="o_affiliation" value="<?=$_GET['o_affiliation']?>" />
+                        <input type="text"  name="email" value="<?=$_GET['email']?>" />
                     </dd>
                 </dl>
                 <dl class="search_wrap">
@@ -132,23 +134,23 @@ $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
                 <dl>
                     <dt>주문번호</dt>
                     <dd>
-                        <input type="text"  name="o_affiliation" value="<?=$_GET['o_affiliation']?>" />
+                        <input type="text"  name="t_orderno" value="<?=$_GET['t_orderno']?>" />
                     </dd>
                 </dl>
                 <dl>
                     <dt>승인번호</dt>
                     <dd>
-                        <input type="text"  name="o_affiliation" value="<?=$_GET['o_affiliation']?>" />
+                        <input type="text"  name="t_apprvno" value="<?=$_GET['t_apprvno']?>" />
                     </dd>
                 </dl>
                 <dl>
                     <dt>지부/지회</dt>
                     <dd>
-                        <select name="orderby2" class="text"  style="width:120px;">
+                        <select name="brncode" class="text"  style="width:120px;">
                             <option value="">전체</option>
-				            <?php foreach ($arrSortFeld as $sortno => $sortname): ?>
-                                <option value="<?= $sortno ?>" <?= $_GET['orderby2'] == $sortno ? "selected" : "" ?>><?= $sortname ?></option>
-				            <?php endforeach; ?>
+                            <?php foreach($arrBranchCategory as $code => $name): ?>
+                                <option value="<?=$code?>" <?=$code==$_GET["brncode"]?" selected":""?>><?=$name?></option>
+                            <?php endforeach; ?>
                         </select>
                     </dd>
                 </dl>
@@ -157,22 +159,16 @@ $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
                 <dl>
                     <dt>결제항목</dt>
                     <dd>
-                        <select name="orderby2" class="text"  style="width:120px;">
+                        <select name="aa" class="text"  style="width:120px;">
                             <option value="">전체</option>
-				            <?php foreach ($arrSortFeld as $sortno => $sortname): ?>
-                                <option value="<?= $sortno ?>" <?= $_GET['orderby2'] == $sortno ? "selected" : "" ?>><?= $sortname ?></option>
-				            <?php endforeach; ?>
                         </select>
                     </dd>
                 </dl>
                 <dl>
                     <dt>결제세부항목</dt>
                     <dd>
-                        <select name="orderby2" class="text"  style="width:120px;">
+                        <select name="aa" class="text"  style="width:120px;">
                             <option value="">전체</option>
-				            <?php foreach ($arrSortFeld as $sortno => $sortname): ?>
-                                <option value="<?= $sortno ?>" <?= $_GET['orderby2'] == $sortno ? "selected" : "" ?>><?= $sortname ?></option>
-				            <?php endforeach; ?>
                         </select>
                     </dd>
                 </dl>
@@ -181,25 +177,32 @@ $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
                 <dl>
                     <dt>결제카드</dt>
                     <dd>
-                        <select name="orderby2" class="text"  style="width:120px;">
+                        <select name="t_account" class="text"  style="width:120px;">
                             <option value="">전체</option>
-				            <?php foreach ($arrSortFeld as $sortno => $sortname): ?>
-                                <option value="<?= $sortno ?>" <?= $_GET['orderby2'] == $sortno ? "selected" : "" ?>><?= $sortname ?></option>
-				            <?php endforeach; ?>
+                            <?php foreach ($arrAccountCard as $code => $name): ?>
+                                <option value="<?=$code?>" <?=$code==$_GET['t_account'] ? " selected" : ""?>><?=$name?></option>
+                            <?php endforeach; ?>
                         </select>
                     </dd>
                 </dl>
+
                 <dl>
-                    <dt>입금 계좌</dt>
+                    <dt>입금계좌</dt>
                     <dd>
-                        <select name="orderby2" class="text"  style="width:120px;">
-                            <option value="">전체</option>
-				            <?php foreach ($arrSortFeld as $sortno => $sortname): ?>
-                                <option value="<?= $sortno ?>" <?= $_GET['orderby2'] == $sortno ? "selected" : "" ?>><?= $sortname ?></option>
-				            <?php endforeach; ?>
+                        <select name="account_banks" class="text" style="width:300px;">
+                            <option value="">입금 계좌 선택</option>
+                                <?php foreach($arrAccountBank['list'] as $index => $account): ?>
+                                    <?php
+                                    $bankKey = $account['a_bank'] . ' ' . $account['a_number'];
+                                    $selected = (isset($_GET['account_banks']) && $_GET['account_banks'] == $bankKey) ? 'selected' : '';
+                                    ?>
+                                    <option value="<?= $bankKey ?>" <?= $selected ?>>
+                                        <?= $account['a_bank'] ?> <?= $account['a_number'] ?> (<?= $account['a_holder'] ?>) - <?= $account['a_purpose'] ?>
+                                    </option>
+                                <?php endforeach; ?>
                         </select>
-                        <button type="button" class="search" onclick="document.frmSort.submit()">검색</button>
-                        <button type="button" class="search" onclick="document.frmSort.submit()">검색조건 초기화</button>
+                        <button type="submit" class="btn date_btn">검색</button>
+                        <a href="/backoffice/module/accounting/payment_history.php" class="btn date_btn" style="width: 110px;background:#777;display:inline-block;text-decoration:none;cursor:pointer;text-align:center;">검색조건 초기화</a>
                     </dd>
                 </dl>
                 <dl class="search_wrap">
@@ -207,14 +210,14 @@ $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
                 <dl class="w2">
                     <dt>결제일</dt>
                     <dd>
-                        <input type="text" class="datepicker" name="s_date" value="<?=$_REQUEST['s_date']?>" id="s_date" />
+                        <input type="text" class="datepicker" name="tsdate" value="<?=$_REQUEST['tsdate']?>" id="tsdate" />
                         <em>~</em>
-                        <input type="text" class="datepicker" name="e_date" value="<?=$_REQUEST['e_date']?>" id="e_date" />
+                        <input type="text" class="datepicker" name="tedate" value="<?=$_REQUEST['tedate']?>" id="tedate" />
                         <div class="date_btns">
-                            <button type="button" class="btn date_btn" onclick="setDateRange('all')">전체</button>
-                            <button type="button" class="btn date_btn" onclick="setDateRange('1month')">1개월</button>
-                            <button type="button" class="btn date_btn" onclick="setDateRange('3month')">3개월</button>
-                            <button type="button" class="btn date_btn" onclick="setDateRange('6month')">6개월</button>
+                            <button type="button" class="btn date_btn" onclick="setDateRange('all', 'payment')">전체</button>
+                            <button type="button" class="btn date_btn" onclick="setDateRange('1month', 'payment')">1개월</button>
+                            <button type="button" class="btn date_btn" onclick="setDateRange('3month', 'payment')">3개월</button>
+                            <button type="button" class="btn date_btn" onclick="setDateRange('6month', 'payment')">6개월</button>
                         </div>
                     </dd>
                 </dl>
@@ -223,18 +226,17 @@ $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
                 <dl class="w2">
                     <dt>납부일</dt>
                     <dd>
-                        <input type="text" class="datepicker" name="s_date" value="<?=$_REQUEST['s_date']?>" id="s_date" />
+                        <input type="text" class="datepicker" name="psdate" value="<?=$_REQUEST['psdate']?>" id="psdate" />
                         <em>~</em>
-                        <input type="text" class="datepicker" name="e_date" value="<?=$_REQUEST['e_date']?>" id="e_date" />
+                        <input type="text" class="datepicker" name="pedate" value="<?=$_REQUEST['pedate']?>" id="pedate" />
                         <div class="date_btns">
-                            <button type="button" class="btn date_btn" onclick="setDateRange('all')">전체</button>
-                            <button type="button" class="btn date_btn" onclick="setDateRange('1month')">1개월</button>
-                            <button type="button" class="btn date_btn" onclick="setDateRange('3month')">3개월</button>
-                            <button type="button" class="btn date_btn" onclick="setDateRange('6month')">6개월</button>
+                            <button type="button" class="btn date_btn" onclick="setDateRange('all', 'paid')">전체</button>
+                            <button type="button" class="btn date_btn" onclick="setDateRange('1month', 'paid')">1개월</button>
+                            <button type="button" class="btn date_btn" onclick="setDateRange('3month', 'paid')">3개월</button>
+                            <button type="button" class="btn date_btn" onclick="setDateRange('6month', 'paid')">6개월</button>
                         </div>
                     </dd>
                 </dl>
-
             </div>
             <div class="inbox">
                 <div class="bdr_top">
@@ -327,8 +329,8 @@ $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
                                 <td><i class="mo_vw">납부일</i><?=$arrTransactionMember['list'][$i]['t_inserted'] ? date('Y-m-d', strtotime($arrTransactionMember['list'][$i]['t_inserted'])) : '-'?></td>
                                 <td class="mono_btm"><i class="mo_vw">관리</i>
                                     <div class="btns">
-                                        <a href="javascript:void(0);" onclick="OpenApplyView('edit', '<?=$arrTransactionMember["list"][$i]['t_mid']?>', '<?=$arrTransactionMember["list"][$i]['t_orderno']?>')" class="btn perf">수정</a>
-                                        <button type="button" class="btn del" onclick="delMember('<?=$arrList['list'][$i]['memberid']?>');">삭제</button>
+                                        <a href="javascript:void(0);" onclick="OpenApplyView('edit', <?=$arrTransactionMember["list"][$i]['t_mid']?>, '<?=$arrTransactionMember['list'][$i]['t_orderno']?>')" class="btn perf">확인</a>
+                                        <button type="button" class="btn del" onclick="delMember(<?=$arrTransactionMember["list"][$i]['t_mid']?>, '<?=$arrTransactionMember['list'][$i]['t_orderno']?>');">삭제</button>
                                     </div>
                                 </td>
                             </tr>
@@ -337,7 +339,7 @@ $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
 					}else{
 						?>
                         <tr height="100">
-                            <td colspan="7">등록된 데이터가 없습니다.</td>
+                            <td colspan="14">등록된 데이터가 없습니다.</td>
                         </tr>
 					<?}?>
                     </tbody>
@@ -362,11 +364,16 @@ $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
 				############### paging ############### ED
 				?>
             </div>
+            <div class="btns" style="right:unset;">
+                <a href="javascript:void(0);" onclick="deleteSelectedTransactions()" class="btn btn_del">선택 삭제</a>
+            </div>
         </div>
     </div>
-    <form name="frmContentsHidden" method="post" action="member_evn.php">
+    <form name="frmContentsHidden" method="post" action="/backoffice/module/member/member_evn.php">
         <input type="hidden" name="evnMode" value="delete">
+        <input type="hidden" name="evnSubMode" value="transaction">
         <input type="hidden" name="memberid">
+        <input type="hidden" name="t_orderno">
         <input type="hidden" name="returnURL" value="<?=$_SERVER['REQUEST_URI']?>">
     </form>
 <?######################################### iframe fancybox ######################################### ST?>
@@ -395,7 +402,51 @@ $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
         }
     </style>
     <script>
-        function setDateRange(period) {
+        $(document).ready(function() {
+            // Override the niceSelect function to do nothing
+            $.fn.niceSelect = function() {
+                return this;
+            };
+
+            // If you need to remove the existing niceSelect elements
+            $('.nice-select').remove();
+            $('select').show();
+        });
+        function deleteSelectedTransactions() {
+            var selectedItems = $('input:checkbox[name=chk_list]:checked');
+
+            if (selectedItems.length === 0) {
+                alert('삭제할 항목을 선택해주세요.');
+                return;
+            }
+
+            if (confirm('선택한 ' + selectedItems.length + '개 항목을 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.')) {
+                // 선택된 회원 ID와 주문번호 수집
+                var selectedIds = [];
+                var selectedOrderNos = [];
+
+                selectedItems.each(function() {
+                    var row = $(this).closest('tr');
+                    var memberId = $(this).val();
+                    // 주문번호 셀에서 i 태그를 제외한 실제 값만 가져오기
+                    var orderNoCell = row.find('td:eq(2)');
+                    var orderNo = orderNoCell.clone().children().remove().end().text().trim();
+
+                    selectedIds.push(memberId);
+                    selectedOrderNos.push(orderNo);
+                });
+
+                // 폼 데이터 설정 및 제출
+                var form = document.frmContentsHidden;
+                form.evnMode.value = "delete";
+                form.evnSubMode.value = "batch_transaction";
+                form.memberid.value = selectedIds.join(',');
+                form.t_orderno.value = selectedOrderNos.join(',');
+                form.submit();
+            }
+        }
+
+        function setDateRange(period, type) {
             var today = new Date();
             var end_date = today.getFullYear() + '-' +
                 (('0' + (today.getMonth() + 1)).slice(-2)) + '-' +
@@ -424,23 +475,23 @@ $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
                 start_date = sixMonthsAgo.getFullYear() + '-' +
                     (('0' + (sixMonthsAgo.getMonth() + 1)).slice(-2)) + '-' +
                     (('0' + sixMonthsAgo.getDate()).slice(-2));
-            } else if (period === 'lifetime') {
-                // 종신 설정 - 9999-12-31로 설정
-                start_date = '';
-                end_date = '9999-12-31';
-            } else if (period.startsWith('year')) {
-                // 특정 연도 설정
-                var year = period.substring(4);
-                start_date = year + '-01-01';
-                end_date = year + '-12-31';
             }
 
-            document.getElementById('s_date').value = start_date;
-            document.getElementById('e_date').value = end_date;
+            // 타입에 따라 다른 입력 필드 업데이트
+            if (type === 'payment') {
+                // 결제일
+                document.getElementById('tsdate').value = start_date;
+                document.getElementById('tedate').value = end_date;
+            } else if (type === 'paid') {
+                // 납부일
+                document.getElementById('psdate').value = start_date;
+                document.getElementById('pedate').value = end_date;
+            }
+
         }
 
         function OpenApplyView(mode, memberid, id) {
-            var requestUrl = "/backoffice/module/member/pop_executive.php?memberid=" + memberid + "&o_id=" + id ;
+            var requestUrl = "/backoffice/module/member/pop_transaction.php?memberid=" + memberid + "&t_orderno=" + id ;
             requestUrl += "&mode=" + mode;
 
             Fancybox.show([
@@ -500,12 +551,13 @@ $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
             }
         }
 
-        function delMember(id){
+        function delMember(id, orderno){
             var cfm;
             cfm =false;
             cfm = confirm(" 이 회원을 삭제 하시겠습니까?\n\n삭제시 복구 불가능합니다.");
             if(cfm==true){
                 document.frmContentsHidden.memberid.value = id;
+                document.frmContentsHidden.t_orderno.value = orderno;
                 document.frmContentsHidden.submit();
             }
         }

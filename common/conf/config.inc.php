@@ -449,6 +449,23 @@ $arrSortFeld = array(
 	"o_dutyfrom" => "임기"
 );
 
+$arrTransactionSortFeld = array(
+	"t_orderno" => "주문번호",
+	"t_name" => "성명",
+	"t_affiliation" => "소속",
+	"t_method" => "납부방법",
+	"t_amount" => "결제금액"
+);
+
+//학위
+$arrDegree = array(
+	"학사" => "학사",
+	"석사수료" => "석사수료",
+	"석사" => "석사",
+	"박사수료" => "박사수료",
+	"박사" => "박사"
+);
+
 //국가 코드
 $arrCountry = array(
 	"Korea" => "Korea, Republic of",

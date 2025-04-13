@@ -19,18 +19,10 @@ if ($_GET['page_size']) {
     $scale = 20;
 }
 
-if (isset($_GET['mstatus']) && $_GET['mstatus'] !== '') {
-    $mstatus = $_GET['mstatus'];
-} else {
-    $mstatus = 1; // 기본값 설정
-}
 // DB연결
 $dblink = SetConn ( $_conf_db ["main_db"] );
 
-$arrList = getMemberList( mysqli_real_escape_string ( $GLOBALS ['dblink'], $_REQUEST ['jb'] ),  mysqli_real_escape_string ( $GLOBALS ['dblink'], $_REQUEST ['sw'] ), mysqli_real_escape_string ( $GLOBALS ['dblink'], $_REQUEST ['sk'] ), $scale, $_REQUEST['offset'],
-    "and mstatus=" . mysqli_real_escape_string($GLOBALS['dblink'], $mstatus) . " and memcode='N'",
-    " order by memberid desc"
-);
+$arrList = getMemberList($scale, $_REQUEST['offset'],"","", "N");
 // _DEBUG($arrList);
 
 $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달

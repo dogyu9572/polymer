@@ -191,6 +191,29 @@ function getPolyMemberOfficer($id, $subQuery = ""){
     return $list;
 }
 
+function getTransactionCard() {
+    $tbl = $GLOBALS["_conf_tbl"]["account_transaction_poly"];
+
+    // 중복 제거하여 계좌/카드사 정보 조회 - t_method가 '신용카드'인 경우와 t_account가 비어있지 않은 경우만
+    $sql = "SELECT DISTINCT t_account FROM {$tbl} WHERE (t_method='신용카드' OR t_method='신용카드직접결제') AND t_account IS NOT NULL AND t_account != '' ORDER BY t_account ASC";
+
+    // 쿼리 실행
+    $rs = mysqli_query($GLOBALS['dblink'], $sql);
+    $total_rs = mysqli_num_rows($rs);
+
+    // 결과 배열 초기화 (키-값 형태로 변환)
+    $list = array();
+
+    if ($total_rs > 0) {
+        while ($row = mysqli_fetch_assoc($rs)) {
+            $cardName = $row['t_account'];
+            // 카드명을 키와 값 모두로 사용
+            $list[$cardName] = $cardName;
+        }
+    }
+
+    return $list;
+}
 // 임원 정보 조회 (페이징 기능 추가 및 검색 조건 적용)
 function listPolyMemberOfficer($id, $subQuery = "", $scale, $offset=0){
     $tbl_officer = $GLOBALS["_conf_tbl"]["member_officer_poly"];
@@ -285,7 +308,7 @@ function listPolyMemberOfficer($id, $subQuery = "", $scale, $offset=0){
             {$whereClause}
             {$subQuery}
             {$orderClause}";
-    echo "echo:"; print_r($sql); echo "<br>" ;
+
     // 결과 배열 초기화
     $list = array('total' => $total_rs);
 
@@ -318,90 +341,202 @@ function listPolyMemberOfficer($id, $subQuery = "", $scale, $offset=0){
 }
 
 function listTransactionMember($id, $subQuery = "", $scale, $offset=0){
-	$tbl = $GLOBALS["_conf_tbl"]["account_transaction_poly"];
+    $tbl = $GLOBALS["_conf_tbl"]["account_transaction_poly"];
+    $tbl_bank = $GLOBALS["_conf_tbl"]["account_banks_poly"];
 
-	// offset 유효성 검사
-	if(!isset($offset) || $offset < 0 || $offset === '' || !is_numeric($offset)) {
-		$offset = 0;
-	}
+    // offset 유효성 검사
+    if(!isset($offset) || $offset < 0 || $offset === '' || !is_numeric($offset)) {
+        $offset = 0;
+    }
 
-	// scale 유효성 검사
-	if(!isset($scale) || !is_numeric($scale)) {
-		$scale = 10; // 기본값 설정
-	}
+    // scale 유효성 검사
+    if(!isset($scale) || !is_numeric($scale)) {
+        $scale = 10; // 기본값 설정
+    }
 
-	// WHERE 절 구성
-	$whereClause = "";
-	$conditions = [];
+    // WHERE 절 구성
+    $whereClause = "";
+    $conditions = [];
 
-	if(!empty($id)) {
-		$id_safe = mysqli_real_escape_string($GLOBALS['dblink'], $id);
-		$conditions[] = "t_mid = '{$id_safe}'";
-	}
+    // 회원 ID 조건
+    if(!empty($id)) {
+        $id_safe = mysqli_real_escape_string($GLOBALS['dblink'], $id);
+        $conditions[] = "t_mid = '{$id_safe}'";
+    }
 
-	// 검색 조건 추가 - 날짜 범위 검색
-	if(isset($_GET['s_date']) && !empty($_GET['s_date'])) {
-		$s_date = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['s_date']);
-		$conditions[] = "DATE(t_inserted) >= '{$s_date}'";
-	}
+    // 회원 여부 필터링 (회원/비회원)
+    if(isset($_GET['t_mid']) && $_GET['t_mid'] !== '') {
+        $t_mid = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['t_mid']);
+        $conditions[] = "t_mid " . ($t_mid == '0' ? "= 0 OR t_mid IS NULL" : "> 0");
+    }
 
-	if(isset($_GET['e_date']) && !empty($_GET['e_date'])) {
-		$e_date = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['e_date']);
-		$conditions[] = "DATE(t_inserted) <= '{$e_date}'";
-	}
+    // 주문번호 검색
+    if(isset($_GET['t_orderno']) && !empty($_GET['t_orderno'])) {
+        $t_orderno = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['t_orderno']);
+        $conditions[] = "t_orderno LIKE '%{$t_orderno}%'";
+    }
 
-	// 조건들을 WHERE 절로 결합
-	if(!empty($conditions)) {
-		$whereClause = "WHERE " . implode(" AND ", $conditions);
-	}
+    // 승인번호 검색
+    if(isset($_GET['t_apprvno']) && !empty($_GET['t_apprvno'])) {
+        $t_apprvno = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['t_apprvno']);
+        $conditions[] = "t_apprvno LIKE '%{$t_apprvno}%'";
+    }
 
-	// 정렬 옵션
-	$orderClause = "ORDER BY t_inserted DESC";
+    // 이름 검색
+    if(isset($_GET['t_name']) && !empty($_GET['t_name'])) {
+        $t_name = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['t_name']);
+        $conditions[] = "t_name LIKE '%{$t_name}%'";
+    }
 
-	// 전체 레코드 수 조회
-	$countSql = "SELECT COUNT(*) as cnt
-                FROM {$tbl}
-                {$whereClause}
-                {$subQuery}";
+    // 소속 검색
+    if(isset($_GET['t_affiliation']) && !empty($_GET['t_affiliation'])) {
+        $t_affiliation = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['t_affiliation']);
+        $conditions[] = "t_affiliation LIKE '%{$t_affiliation}%'";
+    }
 
-	$countRs = mysqli_query($GLOBALS['dblink'], $countSql);
-	$countRow = mysqli_fetch_assoc($countRs);
-	$total_rs = $countRow['cnt'];
+    // 이메일 검색
+    if(isset($_GET['email']) && !empty($_GET['email'])) {
+        $email = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['email']);
+        $conditions[] = "t_email LIKE '%{$email}%'";
+    }
 
-	// 결과 배열 초기화
-	$list = array('total' => $total_rs);
+    // 결제방법 검색 (신용카드, 온라인입금 등)
+    if(isset($_GET['t_method']) && !empty($_GET['t_method'])) {
+        $t_method = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['t_method']);
+        $conditions[] = "t_method = '{$t_method}'";
+    }
 
-	if($total_rs > 0) {
-		// offset 조정
-		if($total_rs <= $offset) {
-			$offset = max(0, $total_rs - ($scale > 0 ? $scale : $total_rs));
-		}
+    // 결제카드/계좌 검색 - 카드인 경우
+    if(isset($_GET['t_account']) && !empty($_GET['t_account'])) {
+        // t_account 값이 정확��� 일치하는 거래 검색 (카드사명 등)
+        $t_account = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['t_account']);
+        $conditions[] = "t_account = '{$t_account}'";
+    }
 
-		// 메인 쿼리
-		$sql = "SELECT *
-                FROM {$tbl}
-                {$whereClause}
-                {$subQuery}
-                {$orderClause}
-                LIMIT $offset, $scale";
+    // 입금 계좌 검색
+    if(isset($_GET['account_banks']) && !empty($_GET['account_banks'])) {
+        $account_banks = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['account_banks']);
+        $conditions[] = "t_account = '{$account_banks}'";
+    }
 
-		// 결과 조회
-		$rs = mysqli_query($GLOBALS['dblink'], $sql);
-		$list['list'] = array();
-		$list['list']['total'] = mysqli_num_rows($rs);
+    // 납부상태 검색 (완납/일부납/미납)
+    if(isset($_GET['t_complete']) && !empty($_GET['t_complete'])) {
+        $t_complete = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['t_complete']);
+        if($t_complete == 'A') {
+            // 완납: 총 금액과 납부 금액이 같은 경우
+            $conditions[] = "t_amount = t_paid AND t_amount > 0";
+        } else if($t_complete == 'P') {
+            // 일부납: 납부 ��액이 0보다 크고 총 금액보다 작은 경우
+            $conditions[] = "t_paid > 0 AND t_paid < t_amount";
+        } else if($t_complete == 'N') {
+            // 미납: 납부 금액이 0인 경우
+            $conditions[] = "t_paid = 0 AND t_amount > 0";
+        }
+    }
 
-		// 결과 데이터 처리
-		$i = 0;
-		while($row = mysqli_fetch_assoc($rs)) {
-			$list['list'][$i] = $row;
-			$i++;
-		}
-	} else {
-		$list['list']['total'] = 0;
-		$list['list'] = array();
-	}
+    // 회원코드 (memcode) 검색
+    if(isset($_GET['memcode']) && !empty($_GET['memcode'])) {
+        $memcode = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['memcode']);
+        // JOIN 구문을 추가하는 변수 생성
+        if (!isset($joinClause) || strpos($joinClause, "member_poly") === false) {
+            $joinClause = " LEFT JOIN {$GLOBALS['_conf_tbl']['member_poly']} m ON t_mid = m.memberid ";
+        }
+        $conditions[] = "m.memcode = '{$memcode}'";
+    }
 
-	return $list;
+    // 지부코드 (brncode) 검색
+    if(isset($_GET['brncode']) && !empty($_GET['brncode'])) {
+        $brncode = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['brncode']);
+        $conditions[] = "t_brncode = '{$brncode}'";
+    }
+
+    // 트랜잭션 날짜 범위 검색
+    if(isset($_GET['tsdate']) && !empty($_GET['tsdate'])) {
+        $tsdate = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['tsdate']);
+        $conditions[] = "DATE(t_inserted) >= '{$tsdate}'";
+    }
+
+    if(isset($_GET['tedate']) && !empty($_GET['tedate'])) {
+        $tedate = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['tedate']);
+        $conditions[] = "DATE(t_inserted) <= '{$tedate}'";
+    }
+
+    if(isset($_GET['psdate']) && !empty($_GET['psdate'])) {
+        $psdate = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['psdate']);
+        $conditions[] = "DATE(t_updated) >= '{$psdate}'";
+    }
+
+    if(isset($_GET['pedate']) && !empty($_GET['pedate'])) {
+        $pedate = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['pedate']);
+        $conditions[] = "DATE(t_updated) <= '{$pedate}'";
+    }
+
+    // 조건들을 WHERE 절로 결합
+    if(!empty($conditions)) {
+        $whereClause = "WHERE " . implode(" AND ", $conditions);
+    }
+
+    // 정렬 옵션
+    $orderClause = "ORDER BY t_inserted DESC";
+
+    // 정렬 조건 1
+    if(isset($_GET['orderby1']) && !empty($_GET['orderby1'])) {
+        $orderby1 = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['orderby1']);
+        $orderClause = "ORDER BY {$orderby1}";
+
+        // 정렬 조건 2
+        if(isset($_GET['orderby2']) && !empty($_GET['orderby2'])) {
+            $orderby2 = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['orderby2']);
+            $orderClause .= ", {$orderby2}";
+        }
+    }
+
+    // 전체 레코드 수 조회
+    $countSql = "SELECT COUNT(*) as cnt
+            FROM {$tbl}
+            {$joinClause}
+            {$whereClause}
+            {$subQuery}";
+
+    $countRs = mysqli_query($GLOBALS['dblink'], $countSql);
+    $countRow = mysqli_fetch_assoc($countRs);
+    $total_rs = $countRow['cnt'];
+
+    // 결과 배열 초기화
+    $list = array('total' => $total_rs);
+
+    if($total_rs > 0) {
+        // offset 조정
+        if($total_rs <= $offset) {
+            $offset = max(0, $total_rs - ($scale > 0 ? $scale : $total_rs));
+        }
+
+        // 메인 쿼리
+        $sql = "SELECT t.*
+        FROM {$tbl} t
+        {$joinClause}
+        {$whereClause}
+        {$subQuery}
+        {$orderClause}
+        LIMIT $offset, $scale";
+
+        // 결과 조회
+        $rs = mysqli_query($GLOBALS['dblink'], $sql);
+        $list['list'] = array();
+        $list['list']['total'] = mysqli_num_rows($rs);
+
+        // 결과 데이터 처리
+        $i = 0;
+        while($row = mysqli_fetch_assoc($rs)) {
+            $list['list'][$i] = $row;
+            $i++;
+        }
+    } else {
+        $list['list']['total'] = 0;
+        $list['list'] = array();
+    }
+
+    return $list;
 }
 
 // 회원 납부 내역 조회
