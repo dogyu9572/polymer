@@ -27,7 +27,13 @@ if (isset($_GET['mstatus']) && $_GET['mstatus'] !== '') {
 // DB연결
 $dblink = SetConn ( $_conf_db ["main_db"] );
 
+$arrListPaid = listPaid("", "", $scale, $_REQUEST['offset']);
+
+$arrCodeCategory = getPolyCategoryOption("회원구분");
+$arrBranchCategory = getPolyCategoryOption("지부");
 $arrAccountBank = getAccountBank();
+$chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
+$arrAccountCard = getTransactionCard();
 
 // DB해제
 //SetDisConn ( $dblink );
@@ -35,55 +41,116 @@ $arrAccountBank = getAccountBank();
 
 	<div class="container">
 		<div class="title">결제내역</div>
-		<form name="frmSort" method="get" action="bank_account.php">
-            <div class="inbox top_search">
+		<form name="frmSort" method="get" action="paid.php">
+			<div class="inbox top_search">
+				<dl>
+					<dt>정렬조건1</dt>
+					<dd>
+						<select name="orderby1" class="text"  style="width:120px;">
+							<option value="">선택</option>
+                            <option value="p_paid DESC" selected>납부일자
+						</select>
+					</dd>
+				</dl>
+				<dl>
+					<dt>정렬조건2</dt>
+					<dd>
+						<select name="orderby2" class="text" style="width:120px;">
+							<option value="">선택</option>
+                            <option value="t_name" selected>이름
+						</select>
+					</dd>
+				</dl>
+                <dl class="search_wrap">
+                </dl>
+
+                <dl class="search_wrap">
+                    <dt>회원여부</dt>
+                    <dd>
+                        <select name="p_mid" class="text" style="width:120px;">
+                            <option value="">전체</option>
+                            <option value="1" <?= isset($_GET['p_mid']) && $_GET['p_mid'] === '1' ? "selected" : "" ?>>회원</option>
+                            <option value="0" <?= isset($_GET['p_mid']) && $_GET['p_mid'] === '0' ? "selected" : "" ?>>비회원</option>
+                        </select>
+                    </dd>
+                </dl>
+				<dl class="search_wrap">
+					<dt>회원구분</dt>
+					<dd>
+						<select name="memcode" class="text"  style="width:120px;">
+							<option value="">선택</option>
+							<?php foreach($arrCodeCategory as $code => $name): ?>
+								<option value="<?=$code?>" <?=$code==$_GET['memcode']?" selected":""?>><?=$name?></option>
+							<?php endforeach; ?>
+						</select>
+					</dd>
+				</dl>
+				<dl class="search_wrap">
+				</dl>
+				<dl>
+					<dt>이름</dt>
+					<dd>
+						<input type="text"  name="t_name" value="<?=$_GET['t_name']?>" />
+					</dd>
+				</dl>
+				<dl>
+					<dt>소속</dt>
+					<dd>
+						<input type="text"  name="t_affiliation" value="<?=$_GET['t_affiliation']?>" />
+					</dd>
+				</dl>
+				<dl>
+					<dt>이메일</dt>
+					<dd>
+						<input type="text"  name="email" value="<?=$_GET['email']?>" />
+					</dd>
+				</dl>
+				<dl class="search_wrap">
+				</dl>
                 <dl>
-                    <dt>등록일</dt>
+                    <dt>납부키</dt>
                     <dd>
-                        <input type="text" class="datepicker" name="sdate" value="<?=$_REQUEST['sdate']?>" id="sdate" />
-                        <em>~</em>
-                        <input type="text" class="datepicker" name="edate" value="<?=$_REQUEST['edate']?>" id="edate" />
-                        <div class="date_btns">
-                            <button type="button" class="btn date_btn" onclick="setDateRange('all', 'paid')">전체</button>
-                            <button type="button" class="btn date_btn" onclick="setDateRange('1month', 'paid')">1개월</button>
-                            <button type="button" class="btn date_btn" onclick="setDateRange('3month', 'paid')">3개월</button>
-                            <button type="button" class="btn date_btn" onclick="setDateRange('6month', 'paid')">6개월</button>
-                        </div>
+                        <input type="text"  name="p_id" value="<?=$_GET['p_id']?>" />
                     </dd>
                 </dl>
-                <dl class="search_wrap">
-                    <dt>사용 여부</dt>
-                    <dd>
-                        <select name="a_active" class="text" style="width:120px;">
-                            <option value="">선택</option>
-                            <option value="1" <?=$_GET['a_active']=="1"?" selected='selected'":""?>>사용</option>
-                            <option value="0" <?=$_GET['a_active']=="0"?" selected='selected'":""?>>미사용</option>
-                        </select>
-                    </dd>
-                </dl>
-                <dl class="search_wrap">
-                    <dt>검색어</dt>
-                    <dd>
-                        <select name="sw" style="width:120px;">
-                            <option value='all' <?=$_GET['sw']=="all"?" selected='selected'":""?>>전체</option>
-                            <option value='a_accountname' <?=$_GET['sw']=="a_accountname"?" selected='selected'":""?>>계좌명</option>
-                            <option value='a_bank' <?=$_GET['sw']=="a_bank"?" selected='selected'":""?>>은행명</option>
-                            <option value='a_number' <?=$_GET['sw']=="a_number"?" selected='selected'":""?>>계좌번호</option>
-                            <option value='a_holder' <?=$_GET['sw']=="a_holder"?" selected='selected'":""?>>예금주</option>
-                        </select>
-                        <input type="text" name="sk" value="<?=$_GET['sk']?>" onkeypress="if(event.keyCode == 13){document.frmSort.submit()}" />
-                        <button type="button" class="search" onclick="document.frmSort.submit()">검색</button>
-                    </dd>
-                </dl>
-            </div>
+				<dl>
+					<dt>주문번호</dt>
+					<dd>
+						<input type="text"  name="p_orderno" value="<?=$_GET['p_orderno']?>" />
+					</dd>
+				</dl>
+				<dl class="search_wrap">
+				</dl>
+				<dl>
+					<dt>결제항목</dt>
+					<dd>
+						<select name="aa" class="text"  style="width:120px;">
+							<option value="">전체</option>
+						</select>
+					</dd>
+				</dl>
+				<dl>
+					<dt>결제세부항목</dt>
+					<dd>
+						<select name="aa" class="text"  style="width:120px;">
+							<option value="">전체</option>
+						</select>
+                        <button type="submit" class="btn date_btn">검색</button>
+                        <a href="/backoffice/module/accounting/payment_record.php" class="btn date_btn" style="width: 110px;background:#777;display:inline-block;text-decoration:none;cursor:pointer;text-align:center;">검색조건 초기화</a>
+					</dd>
+				</dl>
+			</div>
 			<div class="inbox">
 				<div class="bdr_top">
 					<div class="left">
-						<div class="total">Total : <strong><?=number_format($arrAccountBank["total"])?></strong></div>
+						<div class="total">Total : <strong><?=number_format($arrListPaid["total"])?></strong></div>
 						<div class="down">
 						</div>
 					</div>
 					<div class="bdr_right">
+						<div class="btns">
+							<a href="/backoffice/module/member/member_to_xls.php?user_level=<?=urlencode($_REQUEST['user_level'])?>&join_type=<?=urlencode($_REQUEST['join_type'])?>&email_accept=<?=urlencode($_REQUEST['email_accept'])?>&sms_accept=<?=urlencode($_REQUEST['sms_accept'])?>&s_date=<?=urlencode($_REQUEST['s_date'])?>&e_date=<?=urlencode($_REQUEST['e_date'])?>&login_last=<?=urlencode($_REQUEST['login_last'])?>&sw=<?=urlencode($_REQUEST['sw'])?>&sk=<?=urlencode($_REQUEST['sk'])?>&page_size=<?=$scale?>&offset=<?=urlencode($_REQUEST['offset'])?>" class="excel" download>엑셀파일로 저장<span class="pc_vw"></span></a>
+						</div>
 						<div class="count">
 							<select name="page_size" onchange="document.frmSort.submit()" style="width:100px;">
 								<option value="0" <?if($scale=="0"){echo 'selected="selected"';}?>>전체</option>
@@ -101,9 +168,6 @@ $arrAccountBank = getAccountBank();
 							</select>
 							개씩 보기
 						</div>
-                        <div class="btns">
-                            <a href="bank_account_form.php" class="btn">신규등록</a>
-                        </div>
 					</div>
 				</div>
 		</form>
@@ -115,52 +179,48 @@ $arrAccountBank = getAccountBank();
 					<colgroup class="pc_vw">
 						<col class="check">
 						<col class="w8p">
-						<col class="w16p">
 						<col class="w10p">
 						<col class="w10p">
+						<col class="w8p">
+						<col class="w8p">
 						<col class="w12p">
 						<col class="w12p">
-						<col class="w10p">
-						<col class="w10p">
-						<col class="w14p">
+						<col class="w12p">
+						<col class="w12p">
+                        <col class="w12p">
 					</colgroup>
 					<thead>
-                    <tr>
-                        <th><label class="check notxt"><input type="checkbox" name="" id="allCheck"><i></i></label></th>
-                        <th class="pc_vw">No.</th>
-                        <th class="pc_vw">계좌명</th>
-                        <th class="pc_vw">은행명</th>
-                        <th class="pc_vw">계좌번호</th>
-                        <th class="pc_vw">예금주</th>
-                        <th class="pc_vw">결제용도</th>
-                        <th class="pc_vw">사용 여부</th>
-                        <th class="pc_vw">등록일</th>
-                        <th class="pc_vw">관리</th>
-                    </tr>
+					<tr>
+						<th><label class="check notxt"><input type="checkbox" name="" id="allCheck"><i></i></label></th>
+						<th class="pc_vw">No.</th>
+						<th class="pc_vw">납부키</th>
+						<th class="pc_vw">주문번호</th>
+						<th class="pc_vw">회원여부</th>
+						<th class="pc_vw">이름</th>
+						<th class="pc_vw">소속</th>
+						<th class="pc_vw">납부항목</th>
+						<th class="pc_vw">납부금액</th>
+						<th class="pc_vw">유효기간(시작)</th>
+						<th class="pc_vw">유효기간(종료)</th>
+					</tr>
 					</thead>
 					<tbody>
 					<?
-
-					if($arrAccountBank['total'] > 0){
-						for ($i=0;$i<$arrAccountBank['total'];$i++){
+					if($arrListPaid['list']['total'] > 0){
+						for ($i=0;$i<$arrListPaid['list']['total'];$i++){
 							?>
                             <tr>
-                                <td class="chkbox"><label class="check notxt"><input type="checkbox" value="<?=$arrAccountBank["list"][$i]['a_accountid']?>" name="chk_list"><i></i></label></td>
-                                <td><i class="mo_vw">No.</i><?=$arrAccountBank['total']-$i-$_REQUEST['offset']?></td>
-
-                                <td><i class="mo_vw">계좌명</i><?=$arrAccountBank['list'][$i]['a_accountname']?></td>
-                                <td><i class="mo_vw">은행명</i><?=$arrAccountBank['list'][$i]['a_bank']?></td>
-                                <td><i class="mo_vw">계좌번호</i><?=$arrAccountBank['list'][$i]['a_number']?></td>
-                                <td><i class="mo_vw">예금주</i><?=$arrAccountBank['list'][$i]['a_holder']?></td>
-                                <td><i class="mo_vw">결제용도</i><?=$arrAccountBank['list'][$i]['a_purpose']?></td>
-                                <td><i class="mo_vw">사용 여부</i><?=$arrAccountBank['list'][$i]['a_active'] ? '사용' : '미사용'?></td>
-                                <td><i class="mo_vw">등록일</i><?=date('Y-m-d', strtotime($arrAccountBank['list'][$i]['a_inserted']))?></td>
-                                <td class="mono_btm"><i class="mo_vw">관리</i>
-                                    <div class="btns">
-                                        <a href="javascript:void(0);" onclick="OpenApplyView('edit', <?=$arrAccountBank["list"][$i]['a_accountid']?>)" class="btn perf">수정</a>
-                                        <button type="button" class="btn del" onclick="delMember(<?=$arrAccountBank["list"][$i]['a_accountid']?>);">삭제</button>
-                                    </div>
-                                </td>
+                                <td class="chkbox"><label class="check notxt"><input type="checkbox" value="<?=$arrListPaid["list"][$i]['p_id']?>" data-memberid="<?=$arrListPaid["list"][$i]['p_mid']?>" name="chk_list"><i></i></label></td>
+                                <td><i class="mo_vw">No.</i><?=$arrListPaid['total']-$i-$_REQUEST['offset']?></td>
+                                <td><i class="mo_vw">납부키</i><?=$arrListPaid['list'][$i]['p_id']?></td>
+                                <td><i class="mo_vw">주문번호</i><?=$arrListPaid['list'][$i]['p_orderno']?></td>
+                                <td><i class="mo_vw">회원여부</i><?=$arrListPaid['list'][$i]['p_mid'] > 0 ? '회원' : '비회원'?></td>
+                                <td><i class="mo_vw">이름</i><?=$arrListPaid['list'][$i]['t_name']?></td>
+                                <td><i class="mo_vw">소속</i><?=$arrListPaid['list'][$i]['t_affiliation']?></td>
+                                <td><i class="mo_vw">납부항목</i><?=$arrListPaid['list'][$i]['p_item']?></td>
+                                <td><i class="mo_vw">납부금액</i><?=number_format($arrListPaid['list'][$i]['p_amount'])?>원</td>
+                                <td><i class="mo_vw">유효기간(시작)</i><?=$arrListPaid['list'][$i]['p_validfrom'] ? date('Y-m-d', strtotime($arrListPaid['list'][$i]['p_validfrom'])) : '-'?></td>
+                                <td><i class="mo_vw">유효기간(종료)</i><?=$arrListPaid['list'][$i]['p_validto'] ? date('Y-m-d', strtotime($arrListPaid['list'][$i]['p_validto'])) : '-'?></td>
                             </tr>
 							<?
 						}
@@ -188,7 +248,7 @@ $arrAccountBank = getAccountBank();
 						$comma = "&";
 					}
 				}
-				echo pageNavigationBackoffice($arrAccountBank["total"],$scale,10,$_GET['offset'],$reQueryString);
+				echo pageNavigationBackoffice($arrListPaid["total"],$scale,10,$_GET['offset'],$reQueryString);
 				############### paging ############### ED
 				?>
 			</div>
@@ -197,13 +257,14 @@ $arrAccountBank = getAccountBank();
 			</div>
 		</div>
 	</div>
-	<form name="frmContentsHidden" method="post" action="/backoffice/module/member/member_evn.php">
-		<input type="hidden" name="evnMode" value="delete">
-		<input type="hidden" name="evnSubMode" value="transaction">
-		<input type="hidden" name="memberid">
-		<input type="hidden" name="t_orderno">
-		<input type="hidden" name="returnURL" value="<?=$_SERVER['REQUEST_URI']?>">
-	</form>
+    <form name="frmContentsHidden" method="post" action="/backoffice/module/member/member_evn.php">
+        <input type="hidden" name="evnMode" value="delete">
+        <input type="hidden" name="evnSubMode" value="batch_payment">
+        <input type="hidden" name="p_ids" value="">
+        <input type="hidden" name="p_ordernos" value="">
+        <input type="hidden" name="memberids" value="">
+        <input type="hidden" name="returnURL" value="<?=$_SERVER['REQUEST_URI']?>">
+    </form>
 <?######################################### iframe fancybox ######################################### ST?>
 	<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"/>
@@ -240,36 +301,38 @@ $arrAccountBank = getAccountBank();
             $('.nice-select').remove();
             $('select').show();
         });
+
         function deleteSelectedTransactions() {
             var selectedItems = $('input:checkbox[name=chk_list]:checked');
 
             if (selectedItems.length === 0) {
-                alert('삭제할 항목을 선택해주세요.');
+                alert('삭제할 결제 내역을 선택해주세요.');
                 return;
             }
 
-            if (confirm('선택한 ' + selectedItems.length + '개 항목을 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.')) {
-                // 선택된 회원 ID와 주문번호 수집
+            if (confirm('선택한 ' + selectedItems.length + '개 결제 내역을 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.')) {
+                // 선택된 결제 ID, 주문번호, 회원ID 수집
                 var selectedIds = [];
                 var selectedOrderNos = [];
+                var selectedMemberIds = [];
 
                 selectedItems.each(function() {
+                    var pid = $(this).val();
+                    var memberid = $(this).data('memberid');
                     var row = $(this).closest('tr');
-                    var memberId = $(this).val();
-                    // 주문번호 셀에서 i 태그를 제외한 실제 값만 가져오기
-                    var orderNoCell = row.find('td:eq(2)');
-                    var orderNo = orderNoCell.clone().children().remove().end().text().trim();
+                    var orderNoCell = row.find('td:eq(3)');
+                    var orderNo = orderNoCell.clone().children('i').remove().end().text().trim();
 
-                    selectedIds.push(memberId);
+                    selectedIds.push(pid);
                     selectedOrderNos.push(orderNo);
+                    selectedMemberIds.push(memberid);
                 });
 
                 // 폼 데이터 설정 및 제출
                 var form = document.frmContentsHidden;
-                form.evnMode.value = "delete";
-                form.evnSubMode.value = "batch_transaction";
-                form.memberid.value = selectedIds.join(',');
-                form.t_orderno.value = selectedOrderNos.join(',');
+                form.p_ids.value = selectedIds.join(',');
+                form.p_ordernos.value = selectedOrderNos.join(',');
+                form.memberids.value = selectedMemberIds.join(',');
                 form.submit();
             }
         }
@@ -304,8 +367,17 @@ $arrAccountBank = getAccountBank();
                     (('0' + (sixMonthsAgo.getMonth() + 1)).slice(-2)) + '-' +
                     (('0' + sixMonthsAgo.getDate()).slice(-2));
             }
-            document.getElementById('sdate').value = start_date;
-            document.getElementById('edate').value = end_date;
+
+            // 타입에 따라 다른 입력 필드 업데이트
+            if (type === 'payment') {
+                // 결제일
+                document.getElementById('tsdate').value = start_date;
+                document.getElementById('tedate').value = end_date;
+            } else if (type === 'paid') {
+                // 납부일
+                document.getElementById('psdate').value = start_date;
+                document.getElementById('pedate').value = end_date;
+            }
 
         }
 
@@ -343,6 +415,7 @@ $arrAccountBank = getAccountBank();
                 alert('선택된 항목이 없습니다.');
             }
         }
+
         function boardDel(val){
             if(confirm("탈퇴 처리 하시겠습니까?")) {
                 $.post("/backoffice/module/member/ajax_member_del.php", {g_idx: val },
@@ -352,6 +425,7 @@ $arrAccountBank = getAccountBank();
                     });
             }
         }
+
         function memberLevel(idx, lval){
             if(confirm("수정 하시겠습니까?")) {
                 $.post("/backoffice/module/member/ajax_member_level.php", {
@@ -411,13 +485,10 @@ $arrAccountBank = getAccountBank();
             }
         }
 
-	</script>
-	<script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelector('.container').style.display = 'block';
         });
-	</script>
-	<script type="text/javascript">
+
         //<![CDATA[
         $(document).ready(function(){
 //달력

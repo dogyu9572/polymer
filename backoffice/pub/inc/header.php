@@ -7,7 +7,7 @@ switch($thisPHPname){
 	case  'non_member_info.php' :
 	case 'member_info_work.php' : case 'member_info_other.php' : case 'member_info_additional.php' : case 'member_info_executive.php' : case 'member_info_payment.php' :
 	$topMenuClass[2] = "on"; break;
-	case 'payment_history.php' : case 'payment_record.php' : case 'payment_record.php' : case 'payment_item.php' : case 'bank_account.php' :  case 'payment_duplicate_check.php' :
+	case 'transactions.php' : case 'paid.php' : case 'payment_item.php' : case 'bank_account.php' :  case 'payment_duplicate_check.php' : case 'bank_account_form.php' :
 	$topMenuClass[4] = "on"; break;
 	case 'popup_list.php' : case 'popup_info.php' : case 'popup_add.php' :
 	$topMenuClass[18] = "on"; break;

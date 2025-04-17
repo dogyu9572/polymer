@@ -27,20 +27,31 @@ if (isset($_GET['mstatus']) && $_GET['mstatus'] !== '') {
 // DB연결
 $dblink = SetConn ( $_conf_db ["main_db"] );
 
-$arrTransactionMember = listTransactionMember("", "", $scale, $_REQUEST['offset']);
+$arrTransactionMember = listTransaction("", "", $scale, $_REQUEST['offset']);
 $arrCodeCategory = getPolyCategoryOption("회원구분");
 $arrBranchCategory = getPolyCategoryOption("지부");
 $arrAccountBank = getAccountBank();
 $chDate = date('Y-m-d H:i:s',strtotime(date("Y-m-d")."-30 day"));   // 한달
 $arrAccountCard = getTransactionCard();
 
+// 총액, 납부액, 미납액 계산
+$totalAmount = 0;
+$totalPaid = 0;
+
+if($arrTransactionMember['list']['total'] > 0){
+	for ($i=0;$i<$arrTransactionMember['list']['total'];$i++){
+		$totalAmount += $arrTransactionMember['list'][$i]['t_amount'];
+		$totalPaid += $arrTransactionMember['list'][$i]['t_paid'];
+	}
+}
+$totalUnpaid = $totalAmount - $totalPaid;
 // DB해제
 //SetDisConn ( $dblink );
 ?>
 
     <div class="container">
         <div class="title">결제내역</div>
-        <form name="frmSort" method="get" action="payment_history.php">
+        <form name="frmSort" method="get" action="transactions.php">
             <div class="inbox top_search">
                 <dl>
                     <dt>회원여부</dt>
@@ -238,7 +249,53 @@ $arrAccountCard = getTransactionCard();
                     </dd>
                 </dl>
             </div>
+            <style>
+                .summary-table {
+                    margin-bottom: 12px;
+                    width: 100%; /* 전체 너비 사용 */
+                }
+                .summary-table table {
+                    width: 100%; /* 테이블 전체 너비 사용 */
+                    border-collapse: collapse;
+                    border-radius: 4px;
+                    table-layout: fixed; /* 고정 레이아웃 사용 */
+                }
+                .summary-table th, .summary-table td {
+                    padding: 8px 15px;
+                    text-align: center;
+                    border: 1px solid #ddd;
+                }
+                .summary-table th {
+                    background-color: #eaeaea;
+                    font-weight: bold;
+                    font-size: 13px;
+                    width: 16%; /* 고정 비율 사용 */
+                }
+                .summary-table td {
+                    font-size: 14px;
+                    width: 16%; /* 고정 비율 사용 */
+                    white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+                }
+                .summary-table .paid {
+                    color: #2196F3;
+                }
+                .summary-table .unpaid {
+                    color: #F44336;
+                }
+            </style>
             <div class="inbox">
+                <div class="summary-table">
+                    <table>
+                        <tr>
+                            <th>총액</th>
+                            <td><strong><?=number_format($totalAmount)?>원</strong></td>
+                            <th>납부액</th>
+                            <td><strong class="paid"><?=number_format($totalPaid)?>원</strong></td>
+                            <th>미납액</th>
+                            <td><strong class="unpaid"><?=number_format($totalUnpaid)?>원</strong></td>
+                        </tr>
+                    </table>
+                </div>
                 <div class="bdr_top">
                     <div class="left">
                         <div class="total">Total : <strong><?=number_format($arrTransactionMember["total"])?></strong></div>

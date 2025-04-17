@@ -50,7 +50,7 @@ $topMenuMapping = [
 		'log_domain_view.php', 'log_referer_view.php', 'log_page_view.php'
 	],
 	MENU_ACCOUNTING => [
-		'payment_history.php', 'payment_info.php', 'payment_request.php'
+		'transactions.php', 'payment_info.php', 'payment_request.php'
 	],
 ];
 

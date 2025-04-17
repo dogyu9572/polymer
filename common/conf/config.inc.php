@@ -457,6 +457,18 @@ $arrTransactionSortFeld = array(
 	"t_amount" => "결제금액"
 );
 
+// 회원관리 정렬 필드 옵션
+$arrMemberSortField = array(
+	"memberid" => "일련번호",
+	"namek" => "이름",
+	"affiliation" => "소속",
+	"memcode" => "회원구분",
+	"maxdue" => "최종연회비",
+	"maxfee" => "최종구독회비",
+	"hzonecode" => "우편번호",
+	"socnum" => "주민번호"
+);
+
 //학위
 $arrDegree = array(
 	"학사" => "학사",
@@ -465,6 +477,7 @@ $arrDegree = array(
 	"박사수료" => "박사수료",
 	"박사" => "박사"
 );
+
 
 //국가 코드
 $arrCountry = array(

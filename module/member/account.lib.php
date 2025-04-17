@@ -110,27 +110,53 @@ function getAccountItems (){
 
 // 회원 계좌 정보 조회
 function getAccountBank() {
-	// 은행 계좌 정보 테이블 지정
 	$tbl = $GLOBALS["_conf_tbl"]["account_banks_poly"];
 
-	// SQL 쿼리 작성 - 활성화된 은행 계좌만 조회
-	$sql = "SELECT * FROM $tbl ";
+	$where = [];
 
-	// 쿼리 실행
-	$rs = mysqli_query($GLOBALS['dblink'], $sql);
-	$total_rs = mysqli_num_rows($rs);
-
-	// 결과 배열 초기화
-	$list = array();
-
-	if ($total_rs > 0) {
-		$list['total'] = $total_rs;
-		$list['list'] = mysqli_fetch_all($rs, MYSQLI_ASSOC);
-	} else {
-		$list['total'] = 0;
+	// 검색 날짜 범위
+	if (!empty($_GET['sdate'])) {
+		$where[] = "DATE(a_inserted) >= '".mysqli_real_escape_string($GLOBALS['dblink'], $_GET['sdate'])."'";
+	}
+	if (!empty($_GET['edate'])) {
+		$where[] = "DATE(a_inserted) <= '".mysqli_real_escape_string($GLOBALS['dblink'], $_GET['edate'])."'";
 	}
 
-	return $list;
+	// 사용 여부
+	if (isset($_GET['a_active']) && $_GET['a_active'] !== '') {
+		$where[] = "a_active = '".mysqli_real_escape_string($GLOBALS['dblink'], $_GET['a_active'])."'";
+	}
+
+	// 검색어
+	if (!empty($_GET['sk']) && !empty($_GET['sw'])) {
+		$sw = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['sw']);
+		$sk = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['sk']);
+
+		if ($sw == 'all') {
+			$where[] = "(a_accountname LIKE '%{$sk}%' OR a_bank LIKE '%{$sk}%' OR a_number LIKE '%{$sk}%' OR a_holder LIKE '%{$sk}%')";
+		} else {
+			$where[] = "{$sw} LIKE '%{$sk}%'";
+		}
+	}
+
+	$whereClause = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
+
+	$sql = "SELECT * FROM {$tbl} {$whereClause} ORDER BY a_inserted DESC";
+
+	$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+	$arrAccountBank = [];
+	$arrAccountBank['list'] = [];
+	$arrAccountBank['total'] = 0;
+
+	if ($rs) {
+		while ($row = mysqli_fetch_assoc($rs)) {
+			$arrAccountBank['list'][] = $row;
+			$arrAccountBank['total']++;
+		}
+	}
+
+	return $arrAccountBank;
 }
 
 // 주문번호 생성
@@ -340,7 +366,7 @@ function listPolyMemberOfficer($id, $subQuery = "", $scale, $offset=0){
     return $list;
 }
 
-function listTransactionMember($id, $subQuery = "", $scale, $offset=0){
+function listTransaction($id, $subQuery = "", $scale, $offset=0){
     $tbl = $GLOBALS["_conf_tbl"]["account_transaction_poly"];
     $tbl_bank = $GLOBALS["_conf_tbl"]["account_banks_poly"];
 
@@ -539,6 +565,170 @@ function listTransactionMember($id, $subQuery = "", $scale, $offset=0){
     return $list;
 }
 
+function listPaid($id, $subQuery = "", $scale, $offset=0){
+	$tbl = $GLOBALS["_conf_tbl"]["account_paid_poly"];
+	$tbl_transaction = $GLOBALS["_conf_tbl"]["account_transaction_poly"];
+	$tbl_member = $GLOBALS["_conf_tbl"]["member_poly"];
+
+	// offset 유효성 검사
+	if(!isset($offset) || $offset < 0 || $offset === '' || !is_numeric($offset)) {
+		$offset = 0;
+	}
+
+	// scale 유효성 검사
+	if(!isset($scale) || !is_numeric($scale)) {
+		$scale = 10; // 기본값 설정
+	}
+
+	// JOIN 절 초기화 - 항상 transaction 테이블과 조인하도록 변경
+	$joinClause = " LEFT JOIN {$tbl_transaction} t ON p.p_mid = t.t_mid AND p.p_orderno = t.t_orderno";
+
+	// WHERE 절 구성
+	$whereClause = "";
+	$conditions = [];
+
+	// 회원 ID 조건
+	if(!empty($id)) {
+		$id_safe = mysqli_real_escape_string($GLOBALS['dblink'], $id);
+		$conditions[] = "p.p_mid = '{$id_safe}'";
+	}
+
+	// 회원 여부 필터링 (회원/비회원)
+	if(isset($_GET['p_mid']) && $_GET['p_mid'] !== '') {
+		$p_mid = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['p_mid']);
+		$conditions[] = $p_mid == '0' ? "(p.p_mid = 0 OR p.p_mid IS NULL)" : "p.p_mid > 0";
+	}
+
+	// 납부키 검색
+	if(isset($_GET['p_id']) && !empty($_GET['p_id'])) {
+		$p_id = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['p_id']);
+		$conditions[] = "p.p_id = '{$p_id}'";
+	}
+
+	// 주문번호 검색
+	if(isset($_GET['p_orderno']) && !empty($_GET['p_orderno'])) {
+		$p_orderno = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['p_orderno']);
+		$conditions[] = "p.p_orderno LIKE '%{$p_orderno}%'";
+	}
+
+	// 납부항목 검색
+	if(isset($_GET['p_item']) && !empty($_GET['p_item'])) {
+		$p_item = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['p_item']);
+		$conditions[] = "p.p_item LIKE '%{$p_item}%'";
+	}
+
+	// 납부방법 검색
+	if(isset($_GET['p_pay']) && !empty($_GET['p_pay'])) {
+		$p_pay = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['p_pay']);
+		$conditions[] = "p.p_pay = '{$p_pay}'";
+	}
+
+	// 납부일 범위 검색
+	if(isset($_GET['psdate']) && !empty($_GET['psdate'])) {
+		$psdate = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['psdate']);
+		$conditions[] = "p.p_paid >= '{$psdate}'";
+	}
+
+	if(isset($_GET['pedate']) && !empty($_GET['pedate'])) {
+		$pedate = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['pedate']);
+		$conditions[] = "p.p_paid <= '{$pedate}'";
+	}
+
+	// 이름 검색 - 기존 조건부 JOIN 코드 제거
+	if(isset($_GET['t_name']) && !empty($_GET['t_name'])) {
+		$t_name = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['t_name']);
+		$conditions[] = "t.t_name LIKE '%{$t_name}%'";
+	}
+
+	// 소속 검색
+	if(isset($_GET['t_affiliation']) && !empty($_GET['t_affiliation'])) {
+		$t_affiliation = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['t_affiliation']);
+		$conditions[] = "t.t_affiliation LIKE '%{$t_affiliation}%'";
+	}
+
+	// 이메일 검색
+	if(isset($_GET['email']) && !empty($_GET['email'])) {
+		$email = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['email']);
+		$conditions[] = "t.t_email LIKE '%{$email}%'";
+	}
+
+	// 회원코드 (memcode) 검색 - member_poly 테이블과 조인 필요
+	if(isset($_GET['memcode']) && !empty($_GET['memcode'])) {
+		$memcode = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['memcode']);
+		$joinClause .= " LEFT JOIN {$tbl_member} m ON p.p_mid = m.memberid";
+		$conditions[] = "m.memcode = '{$memcode}'";
+	}
+
+	// 조건들을 WHERE 절로 결합
+	if(!empty($conditions)) {
+		$whereClause = "WHERE " . implode(" AND ", $conditions);
+	}
+
+	// 정렬 옵션
+	$orderClause = "ORDER BY p.p_id DESC";
+	if(isset($_GET['orderby1']) && !empty($_GET['orderby1'])) {
+		$orderby1 = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['orderby1']);
+		$orderClause = "ORDER BY " . (strpos($orderby1, 't_') === 0 ? 't.' : 'p.') . "{$orderby1}";
+
+		if(isset($_GET['orderby2']) && !empty($_GET['orderby2'])) {
+			$orderby2 = mysqli_real_escape_string($GLOBALS['dblink'], $_GET['orderby2']);
+			$orderClause .= ", " . (strpos($orderby2, 't_') === 0 ? 't.' : 'p.') . "{$orderby2}";
+		}
+	}
+
+	// 전체 레코드 수 조회
+	$countSql = "SELECT COUNT(*) as cnt
+                FROM {$tbl} p
+                {$joinClause}
+                {$whereClause}
+                {$subQuery}";
+
+	$countRs = mysqli_query($GLOBALS['dblink'], $countSql);
+	$countRow = mysqli_fetch_assoc($countRs);
+	$total_rs = $countRow['cnt'];
+
+	// 결과 배열 초기화
+	$list = array('total' => $total_rs);
+	$list['list'] = array();
+	$list['list']['total'] = 0;
+
+	if($total_rs > 0) {
+		// offset이 전체 레코드 수보다 크면 조정
+		if($total_rs <= $offset) {
+			$offset = max(0, $total_rs - ($scale > 0 ? $scale : $total_rs));
+		}
+
+		// 메인 쿼리 - 항상 t.t_name, t.t_affiliation, t.t_email 필드 포함
+		$sql = "SELECT p.*, t.t_name, t.t_affiliation, t.t_email";
+
+		// 회원 테이블이 조인된 경우 필요한 필드 추가
+		if(strpos($joinClause, "member_poly") !== false) {
+			$sql .= ", m.memcode, m.name";
+		}
+
+		$sql .= " FROM {$tbl} p
+                {$joinClause}
+                {$whereClause}
+                {$subQuery}
+                {$orderClause}
+                LIMIT {$offset}, {$scale}";
+
+		echo "echo:"; print_r($sql); echo "<br>" ;
+
+		$rs = mysqli_query($GLOBALS['dblink'], $sql);
+
+		// 결과 데이터 처리
+		$i = 0;
+		while($row = mysqli_fetch_assoc($rs)) {
+			$list['list'][$i] = $row;
+			$i++;
+		}
+		$list['list']['total'] = $i;
+	}
+
+	return $list;
+}
+
 // 회원 납부 내역 조회
 function infoOfficerMember($id, $o_id){
     $tbl_officer = $GLOBALS["_conf_tbl"]["member_officer_poly"];
@@ -714,8 +904,9 @@ function insertPaidMember($id) {
 
 function insertTransactionMember($id) {
 	$tbl = $GLOBALS["_conf_tbl"]["account_transaction_poly"];
+	$paid_tbl = $GLOBALS["_conf_tbl"]["account_paid_poly"]; // 납부 테이블 추가
 
-	// JSON 데이터 파싱 (웹방화벽 우회용)
+	// JSON 데이터 파싱
 	$items = array();
 	if(isset($_POST['items_data']) && !empty($_POST['items_data'])) {
 		$items = json_decode($_POST['items_data'], true);
@@ -756,7 +947,7 @@ function insertTransactionMember($id) {
 	// 결제 날짜와 시간 조합
 	$payDateTime = $_POST['pay_date'] . ' ' . $_POST['pay_time'];
 
-	// SQL 쿼리 작성
+	// 트랜잭션 테이블에 데이터 저장
 	$sql = "INSERT INTO {$tbl} SET
         t_orderno = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['t_orderno'])."',
         t_amount = '".intval($totalAmount)."',
@@ -776,14 +967,43 @@ function insertTransactionMember($id) {
 
 	$rs = mysqli_query($GLOBALS['dblink'], $sql);
 
-	if($rs){
+	// 납부내역 테이블에 각 아이템별로 레코드 삽입
+	$paidInsertSuccess = true;
+	if ($rs) {
+		foreach ($items as $item) {
+			// 다음 p_id 값 가져오기
+			$sql_max = "SELECT MAX(p_id) as max_id FROM {$paid_tbl}";
+			$rs_max = mysqli_query($GLOBALS['dblink'], $sql_max);
+			$row = mysqli_fetch_assoc($rs_max);
+			$next_id = ($row['max_id'] > 0) ? $row['max_id'] + 1 : 1;
+
+			// 아이템별 납부내역 저장
+			$paid_sql = "INSERT INTO {$paid_tbl} SET
+         p_id = '{$next_id}',
+         p_mid = '".mysqli_real_escape_string($GLOBALS['dblink'], $id)."',
+         p_item = '".mysqli_real_escape_string($GLOBALS['dblink'], $item['ItemName'])."',
+         p_amount = '".intval($item['Amount'])."',
+         p_paid = '".mysqli_real_escape_string($GLOBALS['dblink'], $payDateTime)."',
+         p_validfrom = '".mysqli_real_escape_string($GLOBALS['dblink'], $item['From'])."',
+         p_validto = '".mysqli_real_escape_string($GLOBALS['dblink'], $item['To'])."',
+         p_remark = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['p_remark'])."',
+         p_orderno = '".mysqli_real_escape_string($GLOBALS['dblink'], $_POST['t_orderno'])."',
+         p_pay = '".intval($item['Paid'])."'";
+
+			$paid_rs = mysqli_query($GLOBALS['dblink'], $paid_sql);
+
+			if (!$paid_rs) {
+				$paidInsertSuccess = false;
+			}
+		}
+	}
+
+	if ($rs && $paidInsertSuccess) {
 		return true;
 	} else {
 		return false;
 	}
 }
-
-
 
 function editAcareerMember($id) {
 	$tbl = $GLOBALS["_conf_tbl"]["member_acareer_poly"];

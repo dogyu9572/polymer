@@ -92,6 +92,25 @@ if($_POST['evnMode']=="insert"){
             }
         }
         $RS2 = $success;
+    }else if ($_POST['evnSubMode'] == "batch_payment"){
+	    // 여러 납부내역 한 번에 삭제
+	    $memberIds = explode(',', $_REQUEST['memberids']);
+	    $pIds = explode(',', $_REQUEST['p_ids']);
+
+	    $success = true;
+	    for ($i = 0; $i < count($memberIds); $i++) {
+		    if (!empty($memberIds[$i]) && !empty($pIds[$i])) {
+			    $result = deletePaidMember(
+				    mysqli_real_escape_string($GLOBALS['dblink'], $memberIds[$i]),
+				    mysqli_real_escape_string($GLOBALS['dblink'], $pIds[$i])
+			    );
+
+			    if (!$result) {
+				    $success = false;
+			    }
+		    }
+	    }
+	    $RS2 = $success;
     }else{
         $RS2 = outMember(mysqli_real_escape_string($GLOBALS['dblink'], $_REQUEST['memberid']));		// 삭제처리
     }
